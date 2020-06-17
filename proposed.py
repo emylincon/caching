@@ -262,10 +262,12 @@ class LocalCache:
             if self.cache_history[cache_hash][1] > self.cache_history[replace][1]:    # replace only if it has occurred more recently than the victim
                 self.remove_cache(cache_hash, replace)
                 self.cache_store[cache_hash] = 0
-                print(f'scores: {self.cache_history} | {replace} replaced')
+                d = f'scores: {self.cache_history} | {replace} replaced'
+                self.display_me(header='Replace', data=d)
                 cache_decision = 1
             self.cache_history[cache_hash][0] += 1
             self.cache_history[cache_hash][1] = time.time()  # reinitialise history
+            self.display_me(header='Replace', data=f'Not replaced \nNot cached {cache_hash}')
         else:
             self.cache_history[cache_hash][1] = time.time()  # reinitialise history
 
@@ -291,12 +293,21 @@ class LocalCache:
                 self.pre_cache(association[0][0])
                 break
 
+    @staticmethod
+    def display_me(header, data):
+        print('\n' + '*'*100)
+        print(f'header : {header}')
+        print('-' * 100)
+        print(data)
+        print('*' * 100 + '\n')
+
     def check_association(self):
         if len(self.req) >= self.window_size:
             data_len = len(set(self.req[-self.window_size:]))**2
             if len(self.req) >= data_len:
                 data = self.req[-data_len:]
                 rules = AssociateCache(data=data, rule_no=3).gen_rules()
+                self.display_me(header='Association Rules', data=rules)
                 self.apply_association(rules=rules)
 
     def hit_ratio(self):
@@ -432,6 +443,7 @@ def run_me():
         print(f'Requesting {url}')
         local_cache.request(url)
         mec_rtt.add_delay()
+        time.sleep(0.01)
 
     local_cache.hit_ratio()
     messenger.run = 0
