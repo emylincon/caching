@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 apk update && apk upgrade
-apk add nano, curl, wget
 pip3 install pickle
 pip3 install mlxtend
 pip3 install pandas
