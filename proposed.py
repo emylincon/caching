@@ -14,6 +14,7 @@ import subprocess as sp
 import paramiko
 import pickle
 import paho.mqtt.client as mqtt
+import re
 
 shared_resource_lock = threading.Lock()
 
@@ -80,7 +81,7 @@ class MecCache:
             if len(n_nodes) > 1:
                 return get_min_delay_mec(n_nodes)
             else:
-                return n_nodes[-1]
+                return list(n_nodes)[-1]
         return None
 
     def replace(self, mec, old_cache, new_cache):       # multi-cast from mec
@@ -189,16 +190,17 @@ class LocalCache:
             self.display_data(content_hash=con_hash, kind='Miss')
             if add_content_hash == 1:
                 self.get_json_data(endpoint=f'add/{location_id},{con_hash},{url}')    # add to dns chain
+                self.add_hash_dns(location_hash=location_id, content_hash=con_hash)
 
     def miss_decision(self, hash_no, data):
         if self.is_cache_full():
             cache_decision = self.replace(hash_no)
             if cache_decision == 1:
-                self.cache_data(hash_no, data)
+                self.cache_data(hash_no, data, pub=0)
         else:
             self.cache_data(hash_no, data)    # caches data
             self.cache_store[hash_no] = 0   # adds to cache store
-            self.cache_history[hash_no] = [1, time.time()]
+            self.cache_history[hash_no] = [1, time.time()]  # if cache is not full and there is a miss, cache wont be in history
 
     @staticmethod
     def fetch_from_mec(hash_no, host_ip):
@@ -394,7 +396,7 @@ def get_host_id():
     cmd = ['hostname']
     hostname = str(sp.check_output(cmd, shell=True), 'utf-8')[:-1]
     try:
-        host_id = int(hostname[3:])
+        host_id = int(re.findall('[0-9]+', hostname)[0])
         return host_id
     except ValueError:
         print(f'invalid hostname: {hostname} \nValid hostname -> mec11 \nlast 1 or 2 characters must be digit')
@@ -429,7 +431,12 @@ def run_me():
         url = f'http://{web_server}/{req[0]}.html'
         print(f'Requesting {url}')
         local_cache.request(url)
+        mec_rtt.add_delay()
 
     local_cache.hit_ratio()
     messenger.run = 0
+
+
+if __name__ == '__main__':
+    run_me()
 
