@@ -108,6 +108,7 @@ class LocalCache:
         self.cache_history = {}  # id : {'steps': 1, 'freq':1}
         self.hash_dns = {'all':[], 'window': 300}    # {location_hash: content_hash}
         self.to_delete = ['test']
+        self.pre_cached = 0
 
     def get_json_data(self, endpoint, send=None):
         url = f'http://{self.content_name_server}/'
@@ -296,6 +297,7 @@ class LocalCache:
             self.cache_store[cache_hash] = 0
             self.cache_data(cache_hash, cache, pub=0)
             self.display_me(header='Association Pre-cache', data=f'Pre-cached {cache_hash}')
+            self.pre_cached += 1
         else:
             self.display_me(header='Association Pre-cache', data=f'Already in Store {cache_hash}')
 
@@ -335,6 +337,7 @@ class LocalCache:
     def hit_ratio(self):
         print('Hit ratio: ', round((((self.hit+self.mec_hit) / (self.hit+self.mec_hit+self.miss)) * 100)), '%')
         print('mec hit ratio: ', round(self.mec_hit/(self.hit+self.mec_hit) * 100), '%')
+        print('Pre-cached: ', self.pre_cached)
 
 
 class AssociateCache:
