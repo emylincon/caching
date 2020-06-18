@@ -303,11 +303,11 @@ class LocalCache:
         match = 0
         for association in rules:      # rules = [[[1,2], [2]], [[1,2], [2]]]
             if self.req[-len(association[0]):] == association[0]:
-                if association[1][0]:
-                    self.display_me(header='Association Match', data=association)
-                    self.pre_cache(association[1][0])
+                self.display_me(header=f'Association Match {match + 1}', data=association)
+                for i in association[1]:
+                    self.pre_cache(i)
                     match += 1
-                    break
+
         if match == 0:
             print('No Association Match!')
 
@@ -327,7 +327,7 @@ class LocalCache:
                 data = self.req[-data_len:]
                 print(f'Generating Association rules for data {group_no}x{len(data)}')
                 t1 = time.time()
-                rules = AssociateCache(data=data, rule_no=3, group_no=group_no).gen_rules()
+                rules = AssociateCache(data=data, rule_no=5, group_no=group_no).gen_rules()
                 t2 = time.time()
                 self.display_me(header=f'Association Rules | Time: {round(t2-t1, 5)}', data=rules)
                 self.apply_association(rules=rules)
@@ -345,7 +345,7 @@ class AssociateCache:
 
     def gen_rules(self):
         df = self.data_preparation()
-        frequent_items = apriori(df, min_support=0.4, use_colnames=True)
+        frequent_items = apriori(df, min_support=0.45, use_colnames=True)
         rules = association_rules(frequent_items, metric='lift', min_threshold=1)
         rul_sort = rules.sort_values(by=['support', 'confidence', 'lift'])
         if len(rul_sort) > self.rule_no:
