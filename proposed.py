@@ -295,6 +295,7 @@ class LocalCache:
                 self.remove_cache(cache_hash, replace)
             self.cache_store[cache_hash] = 0
             self.cache_data(cache_hash, cache, pub=0)
+            self.display_me(header='Cached on Association', data=cache_hash)
 
     def apply_association(self, rules):
         for association in rules:
@@ -312,11 +313,15 @@ class LocalCache:
 
     def check_association(self):
         if len(self.req) >= self.window_size:
-            data_len = len(set(self.req[-self.window_size:]))**2
+            group_no = len(set(self.req[-self.window_size:]))
+            data_len = group_no**2
             if len(self.req) >= data_len:
                 data = self.req[-data_len:]
-                rules = AssociateCache(data=data, rule_no=3).gen_rules()
-                self.display_me(header='Association Rules', data=rules)
+                print(f'Generating Association rules for data {len(set(data))}x{len(data)}')
+                t1 = time.time()
+                rules = AssociateCache(data=data, rule_no=3, group_no=group_no).gen_rules()
+                t2 = time.time()
+                self.display_me(header=f'Association Rules | Time: {round(t2-t1, 5)}', data=rules)
                 self.apply_association(rules=rules)
 
     def hit_ratio(self):
@@ -325,24 +330,27 @@ class LocalCache:
 
 
 class AssociateCache:
-    def __init__(self, data, rule_no):
+    def __init__(self, data, rule_no, group_no):
         self.data = data              # a list of dataset = [2, 3, 4, 5, ...]
         self.rule_no = rule_no        # how many rules you want to generate
+        self.group_no = group_no    # group_no = len(set(self.data))
 
     def gen_rules(self):
         df = self.data_preparation()
-        frequent_items = apriori(df, min_support=0.09, use_colnames=True)
+        frequent_items = apriori(df, min_support=0.4, use_colnames=True)
         rules = association_rules(frequent_items, metric='lift', min_threshold=1)
         rul_sort = rules.sort_values(by=['support', 'confidence', 'lift'])
-        rule_dict = [[list(rul_sort.values[i,0]), list(rul_sort.values[i,1])] for i in range(self.rule_no)]
+        if len(rul_sort) > self.rule_no:
+            rule_dict = [[list(rul_sort.values[-i,0]), list(rul_sort.values[-i,1])] for i in range(1, self.rule_no+1)]
+        else:
+            rule_dict = [[list(rul_sort.values[i, 0]), list(rul_sort.values[i, 1])] for i in range(len(rul_sort))]
         return rule_dict
 
     def data_preparation(self):
-        group_no = len(set(self.data))
         length = len(self.data)
 
-        b = list(range(0, length - 1, group_no))
-        a = list(range(group_no, length, group_no))
+        b = list(range(0, length - 1, self.group_no))
+        a = list(range(self.group_no, length, self.group_no))
         h = {i: [0] * len(a) for i in set(self.data)}
         pos = 0
         for i in range(len(a)):
@@ -463,6 +471,7 @@ def run_me():
 
     local_cache.hit_ratio()
     messenger.run = 0
+    print('Done!')
 
 
 if __name__ == '__main__':
