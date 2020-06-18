@@ -334,7 +334,7 @@ class LocalCache:
 
     def hit_ratio(self):
         print('Hit ratio: ', round((((self.hit+self.mec_hit) / (self.hit+self.mec_hit+self.miss)) * 100)), '%')
-        print('mec hit ratio: ', round(self.mec_hit/(self.hit+self.mec_hit)), '%')
+        print('mec hit ratio: ', round(self.mec_hit/(self.hit+self.mec_hit) * 100), '%')
 
 
 class AssociateCache:
