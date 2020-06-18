@@ -11,7 +11,7 @@ def zipf_dist(length, maximum):  # length = length of array, maximum = max numbe
     return formated_list
 
 def main():
-    zipf_data = zipf_dist(length=6000, maximum=20)
+    zipf_data = zipf_dist(length=3000, maximum=20)
 
     #path = r'C:\Users\emyli\PycharmProjects\Machine_learning'
     file = open(f'..\cache_request\cache_data.csv', 'w', encoding='utf-8')
