@@ -454,7 +454,7 @@ def run_me():
         print(f'Requesting {url}')
         local_cache.request(url)
         mec_rtt.add_delay()
-        time.sleep(0.01)
+        time.sleep(1)
 
     local_cache.hit_ratio()
     messenger.run = 0
