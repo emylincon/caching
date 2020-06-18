@@ -106,9 +106,12 @@ class LocalCache:
         self.hash_dns = {'all':[], 'window': 300}    # {location_hash: content_hash}
         self.to_delete = ['test']
 
-    def get_json_data(self, endpoint):
+    def get_json_data(self, endpoint, send=None):
         url = f'http://{self.content_name_server}/'
-        response = requests.get(url + endpoint)
+        if send:
+            response = requests.post(url + endpoint, json=json.dumps(send))
+        else:
+            response = requests.get(url + endpoint)
         data = json.loads(response.content)
         return data
 
@@ -189,7 +192,7 @@ class LocalCache:
             self.miss_decision(con_hash, cache)
             self.display_data(content_hash=con_hash, kind='Miss')
             if add_content_hash == 1:
-                self.get_json_data(endpoint=f'add/{location_id},{con_hash},{url}')    # add to dns chain
+                self.get_json_data(endpoint='add/', send=[location_id, con_hash, url])    # add to dns chain
                 self.add_hash_dns(location_hash=location_id, content_hash=con_hash)
 
     def miss_decision(self, hash_no, data):
@@ -299,7 +302,7 @@ class LocalCache:
         print(f'header : {header}')
         print('-' * 100)
         print(data)
-        print('*' * 100 + '\n')
+        print('\n' + '*' * 100 + '\n')
 
     def check_association(self):
         if len(self.req) >= self.window_size:
@@ -420,7 +423,7 @@ def run_me():
 
     os.system('clear')
     # Variable initializations
-    broker_dict = {'user': 'admin', 'pw': 'password', 'sub_topic': 'cache/#'}
+    broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'cache/#'}
     no_mec = int(input('number of mecs: '))
     web_server = input('web server ip: ')
     broker_ip = input('Broker ip: ')
@@ -437,7 +440,7 @@ def run_me():
     h1.start()
     mec_cache = MecCache()
     local_cache = LocalCache(**local_cache_details)       # cache_size, window_size, content_name_server
-
+    input('start: ')
     for req in data_df.values:
         url = f'http://{web_server}/{req[0]}.html'
         print(f'Requesting {url}')
