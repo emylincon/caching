@@ -345,7 +345,7 @@ class LocalCache:
                 data = self.req[-data_len:]
                 print(f'Generating Association rules for data {group_no}x{len(data)}')
                 t1 = time.time()
-                rules = AssociateCache(data=data, rule_no=5, group_no=group_no).gen_rules()
+                rules = AssociateCache(data=data, rule_no=6, group_no=group_no).gen_rules()
                 t2 = time.time()
                 self.display_me(header=f'Association Rules | Time: {round(t2-t1, 5)}', data=rules)
                 self.apply_association(rules=rules)
