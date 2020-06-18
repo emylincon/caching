@@ -295,14 +295,21 @@ class LocalCache:
                 self.remove_cache(cache_hash, replace)
             self.cache_store[cache_hash] = 0
             self.cache_data(cache_hash, cache, pub=0)
-            self.display_me(header='Cached on Association', data=cache_hash)
+            self.display_me(header='Association Pre-cache', data=f'Pre-cached {cache_hash}')
+        else:
+            self.display_me(header='Association Pre-cache', data=f'Already in Store {cache_hash}')
 
     def apply_association(self, rules):
-        for association in rules:
+        match = 0
+        for association in rules:      # rules = [[[1,2], [2]], [[1,2], [2]]]
             if self.req[-len(association[0]):] == association[0]:
-                if association[0][0]:
-                    self.pre_cache(association[0][0])
+                if association[1][0]:
+                    self.display_me(header='Association Match', data=association)
+                    self.pre_cache(association[1][0])
+                    match += 1
                     break
+        if match == 0:
+            print('No Association Match!')
 
     @staticmethod
     def display_me(header, data):
