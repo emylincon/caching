@@ -109,6 +109,7 @@ class LocalCache:
         self.hash_dns = {'all':[], 'window': 300}    # {location_hash: content_hash}
         self.to_delete = ['test']
         self.pre_cached = 0
+        self.rule_matches = {'match': [], 'right': 0, 'wrong': 0}
 
     def get_json_data(self, endpoint, send=None):
         url = f'http://{self.content_name_server}/'
@@ -152,6 +153,14 @@ class LocalCache:
             else:
                 return None
 
+    def association_match_count(self, req):
+        if len(self.rule_matches['match']) != 0:
+            if req in self.rule_matches['match']:
+                self.rule_matches['right'] += 1
+            else:
+                self.rule_matches['wrong'] += 1
+            self.rule_matches['match'] = []
+
     def request(self, url):
         location_hash = self.get_hash(url)
         content_hash = self.get_content_hash(location_hash)
@@ -161,7 +170,13 @@ class LocalCache:
             self.cache_miss(location_id=location_hash, url=url, add_content_hash=1)
         else:
             self.cache_miss(location_id=location_hash, content_hash=content_hash, url=url,  add_content_hash=0)
-        self.add_req_to_list(content_hash)
+        if content_hash:
+            self.add_req_to_list(content_hash)
+            self.association_match_count(content_hash)
+        else:
+            content_hash = self.get_content_hash(location_hash)
+            self.add_req_to_list(content_hash)
+            self.association_match_count(content_hash)
         self.check_association()
 
     @staticmethod
@@ -266,7 +281,7 @@ class LocalCache:
         return victim
 
     def replace(self, cache_hash):
-        cache_decision = 0    # 0 means dont cache, 1 means cache
+        cache_decision = 0    # 0 means don't cache, 1 means cache
         if cache_hash in self.cache_history:      # cache only if its in history
             replace = self.get_victim()
             if self.cache_history[cache_hash][1] > self.cache_history[replace][1]:    # replace only if it has occurred more recently than the victim
@@ -306,6 +321,7 @@ class LocalCache:
         for association in rules:      # rules = [[[1,2], [2]], [[1,2], [2]]]
             if self.req[-len(association[0]):] == association[0]:
                 self.display_me(header=f'Association Match {match + 1}', data=association)
+                self.rule_matches['match'] += association[1]
                 for i in association[1]:
                     self.pre_cache(i)
                     match += 1
@@ -336,8 +352,10 @@ class LocalCache:
 
     def hit_ratio(self):
         print('Hit ratio: ', round((((self.hit+self.mec_hit) / (self.hit+self.mec_hit+self.miss)) * 100)), '%')
-        print('mec hit ratio: ', round(self.mec_hit/(self.hit+self.mec_hit) * 100), '%')
+        print('mec hit ratio: ', round((self.mec_hit/(self.hit+self.mec_hit)) * 100), '%')
         print('Pre-cached: ', self.pre_cached)
+        pred = round((self.rule_matches['right']/(self.rule_matches['right']+self.rule_matches['wrong'])) * 100)
+        print('Right Predictions: ', pred, '%')
 
 
 class AssociateCache:
