@@ -50,9 +50,10 @@ class MecDelay:
         if self.delays[mec] > self.window_size:
             self.delays[mec].pop(0)
 
-    def calculate_mov_avg(self, ma1, a1):
-        _count = len(self.delays[ma1])
-        avg1 = self.delays[ma1][-1]
+    @staticmethod
+    def calculate_mov_avg(ma1, a1):
+        _count = len(ma1)
+        avg1 = ma1[-1]
         _count += 1
         avg1 = ((_count - 1) * avg1 + a1) / _count    # cumulative average formula μ_n=((n-1) μ_(n-1)  + x_n)/n
         return round(avg1, 4)
@@ -166,7 +167,7 @@ class LocalCache:
         print(f'Type : {kind}')
         print('-' * 100)
         os.system(f'cat cache/{content_hash}')
-        print(('*' * 100)+'\n')
+        print('\n' + ('*' * 100)+'\n')
 
     def cache_hit(self, content_hash):
         self.hit += 1
