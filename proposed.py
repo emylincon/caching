@@ -300,8 +300,9 @@ class LocalCache:
     def apply_association(self, rules):
         for association in rules:
             if self.req[-len(association[0]):] == association[0]:
-                self.pre_cache(association[0][0])
-                break
+                if association[0][0]:
+                    self.pre_cache(association[0][0])
+                    break
 
     @staticmethod
     def display_me(header, data):
@@ -317,7 +318,7 @@ class LocalCache:
             data_len = group_no**2
             if len(self.req) >= data_len:
                 data = self.req[-data_len:]
-                print(f'Generating Association rules for data {len(set(data))}x{len(data)}')
+                print(f'Generating Association rules for data {group_no}x{len(data)}')
                 t1 = time.time()
                 rules = AssociateCache(data=data, rule_no=3, group_no=group_no).gen_rules()
                 t2 = time.time()
