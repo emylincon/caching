@@ -47,7 +47,7 @@ class MecDelay:
             shared_resource_lock.release()
 
     def check_window_size(self, mec):
-        if self.delays[mec] > self.window_size:
+        if len(self.delays[mec]) > self.window_size:
             self.delays[mec].pop(0)
 
     @staticmethod
