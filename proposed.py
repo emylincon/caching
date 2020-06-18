@@ -38,13 +38,13 @@ class MecDelay:
             return self.get_delay(mec)
 
     def add_delay(self):                     # call this on a while loop
+        shared_resource_lock.acquire()
         for mec in self.delays:
             delay = self.get_delay(mec)
             avg_delay = self.calculate_mov_avg(self.delays[mec], delay)
-            shared_resource_lock.acquire()
             self.check_window_size(mec)
             self.delays[mec].append(avg_delay)
-            shared_resource_lock.release()
+        shared_resource_lock.release()
 
     def check_window_size(self, mec):
         if len(self.delays[mec]) > self.window_size:
@@ -81,13 +81,15 @@ class MecCache:
             n_nodes = self.cache_store[cache_content_hash]
             if len(n_nodes) > 1:
                 return get_min_delay_mec(n_nodes)
-            else:
+            elif len(n_nodes) == 1:
                 return list(n_nodes)[-1]
         return None
 
     def replace(self, mec, old_cache, new_cache):       # multi-cast from mec
         if mec in self.cache_store[old_cache]:
             self.cache_store[old_cache].remove(mec)
+            if len(self.cache_store[old_cache]) == 0:
+                del self.cache_store[old_cache]
         self.add_cache(new_cache, mec)
 
 
@@ -162,18 +164,21 @@ class LocalCache:
         self.check_association()
 
     @staticmethod
-    def display_data(content_hash, kind):
+    def display_data(kind, content_hash=None, data=None):
         print('\n'+('*'*100))
         print(f'Type : {kind}')
         print('-' * 100)
-        os.system(f'cat cache/{content_hash}')
+        if content_hash:
+            os.system(f'cat cache/{content_hash}')
+        else:
+            print(data)
         print('\n' + ('*' * 100)+'\n')
 
     def cache_hit(self, content_hash):
         self.hit += 1
         self.cache_history[content_hash][0] += 1  # increase frequency
         self.cache_history[content_hash][1] = time.time()  # reinitialise history
-        self.display_data(content_hash, 'Hit')
+        self.display_data(content_hash=content_hash, kind='Hit')
 
     def cache_miss(self,  location_id, add_content_hash, content_hash=None, url=None):
         cache_obtained = 0    # checks if cache has been obtained
@@ -184,14 +189,14 @@ class LocalCache:
                 cache_obtained = 1
                 self.miss_decision(content_hash, cache)
                 self.mec_hit += 1
-                self.display_data(content_hash=content_hash, kind='MEC Hit')
+                self.display_data(data=cache, kind='MEC Hit')
 
         if url and (cache_obtained == 0):
             self.miss += 1
             cache = self.get_data(url)
             con_hash = self.get_hash(cache)
             self.miss_decision(con_hash, cache)
-            self.display_data(content_hash=con_hash, kind='Miss')
+            self.display_data(data=cache, kind='Miss')
             if add_content_hash == 1:
                 self.get_json_data(endpoint='add/', send=[location_id, con_hash, url])    # add to dns chain
                 self.add_hash_dns(location_hash=location_id, content_hash=con_hash)
