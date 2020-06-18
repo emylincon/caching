@@ -273,7 +273,7 @@ class LocalCache:
             self.cache_history[cache_hash][1] = time.time()  # reinitialise history
             self.display_me(header='Replace', data=f'Not replaced \nNot cached {cache_hash}')
         else:
-            self.cache_history[cache_hash][1] = time.time()  # reinitialise history
+            self.cache_history[cache_hash] = [1, time.time()]    # initialize
 
         return cache_decision
 
@@ -448,6 +448,7 @@ def run_me():
     mec_cache = MecCache()
     local_cache = LocalCache(**local_cache_details)       # cache_size, window_size, content_name_server
     input('start: ')
+    time.sleep(5)
     for req in data_df.values:
         url = f'http://{web_server}/{req[0]}.html'
         print(f'Requesting {url}')
