@@ -425,13 +425,19 @@ def run_me():
     os.system('clear')
     # Variable initializations
     broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'cache/#'}
+    '''
+    web server ip: '192.168.205.137'  # 
+    Broker ip: '192.168.205.139'     # 
+    content name server: '192.168.205.138'  # 
+    '''
     no_mec = int(input('number of mecs: '))
-    web_server = input('web server ip: ')
-    broker_ip = input('Broker ip: ')
+    web_server = '192.168.205.137'  # input('web server ip: ')
+    broker_ip = '192.168.205.139'     # input('Broker ip: ')
     broker_dict.update({'ip': broker_ip})
     host_id = get_host_id()
     data_df = split_data(host_id, no_mec)
-    local_cache_details = {'cache_size': 5, 'content_name_server': input('content name server: ')}
+    #local_cache_details = {'cache_size': 5, 'content_name_server': input('content name server: ')}
+    local_cache_details = {'cache_size': 5, 'content_name_server': '192.168.205.138'}
     local_cache_details.update({'window_size': local_cache_details['cache_size']*8})
 
     # initialization of objects
