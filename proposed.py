@@ -463,16 +463,20 @@ def run_me():
     local_cache = LocalCache(**local_cache_details)       # cache_size, window_size, content_name_server
     input('start: ')
     time.sleep(5)
-    for req in data_df.values:
-        url = f'http://{web_server}/{req[0]}.html'
-        print(f'Requesting {url}')
-        local_cache.request(url)
-        mec_rtt.add_delay()
-        time.sleep(1)
+    try:
+        for req in data_df.values:
+            url = f'http://{web_server}/{req[0]}.html'
+            print(f'Requesting {url}')
+            local_cache.request(url)
+            mec_rtt.add_delay()
+            time.sleep(1)
 
-    local_cache.hit_ratio()
-    messenger.run = 0
-    print('Done!')
+        local_cache.hit_ratio()
+        messenger.run = 0
+        print('Done!')
+    except KeyboardInterrupt:
+        os.system('sh clean_up.sh')
+        print('killed!')
 
 
 if __name__ == '__main__':
