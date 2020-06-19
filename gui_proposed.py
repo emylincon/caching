@@ -497,7 +497,7 @@ class LocalCache:
         plt.subplot(ax)
 
     def plot_association(self, ax):
-        data = list(self.rule_matches['rules'].items())[-7:]
+        data = list(self.rule_matches['rules'].items())[-6:]
         if len(data) != 0:
             legend_control = 0
             for i in range(len(data)):
@@ -530,7 +530,7 @@ class LocalCache:
                 lab = list(ant_name) + list(con_name)
                 for x, y in zip(lix, liy):
                     name = self.get_hash_url(lab[x]).split('/')[-1].split('.')[0]
-                    label = fr'$Url_{name}$'
+                    label = fr'$Url{name}$'
                     # this method is called for each point
                     ax.annotate(label,  # this is the text
                                 (x, y),  # this is the point to label
