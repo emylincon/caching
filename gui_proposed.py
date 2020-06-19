@@ -1,5 +1,4 @@
 import matplotlib
-matplotlib.use('TkAgg')
 import ping_code as pc
 from threading import Thread
 import threading
@@ -22,8 +21,8 @@ from drawnow import *
 import matplotlib.pyplot as plt
 
 shared_resource_lock = threading.Lock()
-
-#plt.ion()
+matplotlib.use('TkAgg')
+# plt.ion()
 
 fig = plt.figure()
 ax1 = fig.add_subplot(231)
@@ -79,7 +78,7 @@ class Record:
 class CPU(Record):
     def get_data(self):
         cpu = psutil.cpu_percent(percpu=False)
-        #return round(self.system.cpu_percent(), 4)
+        # return round(self.system.cpu_percent(), 4)
         try:
             lst = self.data_set[-1]
         except IndexError:
@@ -513,21 +512,26 @@ class LocalCache:
                 con = range(len(ant_name), len(con_name) + len(ant_name))
                 con1 = range(len(ant_name) - 1, len(con_name) + len(ant_name))
                 if legend_control == 0:
-                    ax.plot(con1, [i for _ in con1], color='g', marker='>', markersize=7, linestyle=(0, (3, 1, 1, 1, 1, 1)),
+                    ax.plot(con1, [i for _ in con1], color='g', marker='>', markersize=7,
+                            linestyle=(0, (3, 1, 1, 1, 1, 1)),
                             linewidth=2, label='antecedent')
-                    ax.plot(ant, [i for _ in ant], color='b', marker='o', markersize=9, linestyle=(0, (3, 1, 1, 1, 1, 1)),
+                    ax.plot(ant, [i for _ in ant], color='b', marker='o', markersize=9,
+                            linestyle=(0, (3, 1, 1, 1, 1, 1)),
                             linewidth=2, label='consequent')
                     legend_control += 1
                 else:
-                    ax.plot(con1, [i for _ in con1], color='g', marker='>', markersize=7, linestyle=(0, (3, 1, 1, 1, 1, 1)),
+                    ax.plot(con1, [i for _ in con1], color='g', marker='>', markersize=7,
+                            linestyle=(0, (3, 1, 1, 1, 1, 1)),
                             linewidth=2)
-                    ax.plot(ant, [i for _ in ant], color='b', marker='o', markersize=9, linestyle=(0, (3, 1, 1, 1, 1, 1)),
+                    ax.plot(ant, [i for _ in ant], color='b', marker='o', markersize=9,
+                            linestyle=(0, (3, 1, 1, 1, 1, 1)),
                             linewidth=2)
                 lix = list(range(len(con) + len(ant)))
                 liy = [i for _ in lix]
                 lab = list(ant_name) + list(con_name)
                 for x, y in zip(lix, liy):
-                    label = fr'$Url_{lab[x]}$'
+                    name = self.get_hash_url(lab[x]).split('/')[-1].split('.')[0]
+                    label = fr'$Url_{name}$'
                     # this method is called for each point
                     ax.annotate(label,  # this is the text
                                 (x, y),  # this is the point to label
