@@ -80,7 +80,11 @@ class CPU(Record):
     def get_data(self):
         cpu = psutil.cpu_percent(percpu=False)
         #return round(self.system.cpu_percent(), 4)
-        return round(cpu, 4)
+        try:
+            lst = self.data_set[-1]
+        except IndexError:
+            lst = psutil.cpu_percent(percpu=False)
+        return round(abs(cpu - lst), 4)
 
 
 class Memory(Record):
