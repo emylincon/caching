@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('TkAgg')
 import ping_code as pc
 from threading import Thread
 import threading
