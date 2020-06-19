@@ -483,48 +483,50 @@ class LocalCache:
                 explode.append(0)
 
         ax.pie(val, labels=['Right', 'Wrong'], shadow=True, explode=explode, colors=['g', 'r'])
+        ax.legend()
         ax.set_title('Association Prediction')
         plt.subplot(ax)
 
     def plot_association(self, ax):
         data = list(self.rule_matches['rules'].items())
-        legend_control = 0
-        for i in range(len(data)):
-            ant_name = data[i][0]
-            if type(ant_name).__name__ == 'str':
-                ant_name = [ant_name]
-            ant = range(len(ant_name))
-            con_name = data[i][1]
-            if type(con_name).__name__ == 'str':
-                con_name = [con_name]
-            con = range(len(ant_name), len(con_name) + len(ant_name))
-            con1 = range(len(ant_name) - 1, len(con_name) + len(ant_name))
-            if legend_control == 0:
-                ax.plot(con1, [i for _ in con1], color='g', marker='>', markersize=7, linestyle=(0, (3, 1, 1, 1, 1, 1)),
-                        linewidth=2, label='antecedent')
-                ax.plot(ant, [i for _ in ant], color='b', marker='o', markersize=9, linestyle=(0, (3, 1, 1, 1, 1, 1)),
-                        linewidth=2, label='consequent')
-                legend_control += 1
-            else:
-                ax.plot(con1, [i for _ in con1], color='g', marker='>', markersize=7, linestyle=(0, (3, 1, 1, 1, 1, 1)),
-                        linewidth=2)
-                ax.plot(ant, [i for _ in ant], color='b', marker='o', markersize=9, linestyle=(0, (3, 1, 1, 1, 1, 1)),
-                        linewidth=2)
-            lix = list(range(len(con) + len(ant)))
-            liy = [i for _ in lix]
-            lab = ant_name + con_name
-            for x, y in zip(lix, liy):
-                label = fr'$Url_{lab[x]}$'
-                # this method is called for each point
-                ax.annotate(label,  # this is the text
-                            (x, y),  # this is the point to label
-                            textcoords="offset points",  # how to position the text
-                            xytext=(0, 7),  # distance from text to points (x,y)
-                            ha='center')  # horizontal alignment can be left, right or center
-        ax.set_title('Association Rules')
-        ax.legend()
-        ax.axis('off')
-        plt.subplot(ax)
+        if len(data) != 0:
+            legend_control = 0
+            for i in range(len(data)):
+                ant_name = data[i][0]
+                if type(ant_name).__name__ == 'str':
+                    ant_name = [ant_name]
+                ant = range(len(ant_name))
+                con_name = data[i][1]
+                if type(con_name).__name__ == 'str':
+                    con_name = [con_name]
+                con = range(len(ant_name), len(con_name) + len(ant_name))
+                con1 = range(len(ant_name) - 1, len(con_name) + len(ant_name))
+                if legend_control == 0:
+                    ax.plot(con1, [i for _ in con1], color='g', marker='>', markersize=7, linestyle=(0, (3, 1, 1, 1, 1, 1)),
+                            linewidth=2, label='antecedent')
+                    ax.plot(ant, [i for _ in ant], color='b', marker='o', markersize=9, linestyle=(0, (3, 1, 1, 1, 1, 1)),
+                            linewidth=2, label='consequent')
+                    legend_control += 1
+                else:
+                    ax.plot(con1, [i for _ in con1], color='g', marker='>', markersize=7, linestyle=(0, (3, 1, 1, 1, 1, 1)),
+                            linewidth=2)
+                    ax.plot(ant, [i for _ in ant], color='b', marker='o', markersize=9, linestyle=(0, (3, 1, 1, 1, 1, 1)),
+                            linewidth=2)
+                lix = list(range(len(con) + len(ant)))
+                liy = [i for _ in lix]
+                lab = ant_name + con_name
+                for x, y in zip(lix, liy):
+                    label = fr'$Url_{lab[x]}$'
+                    # this method is called for each point
+                    ax.annotate(label,  # this is the text
+                                (x, y),  # this is the point to label
+                                textcoords="offset points",  # how to position the text
+                                xytext=(0, 7),  # distance from text to points (x,y)
+                                ha='center')  # horizontal alignment can be left, right or center
+            ax.set_title('Association Rules')
+            ax.legend()
+            ax.axis('off')
+            plt.subplot(ax)
 
     @staticmethod
     def percent(value, total):
