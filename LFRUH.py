@@ -348,7 +348,7 @@ def ip_address():
 
 
 def split_data(_id_, no_mec):
-    data = pd.read_csv(r'cache_request/cache_data.csv')     # replace with your data-set
+    data = pd.read_csv(r'cache_request/lest.csv')     # replace with your data-set
     d_step = len(data)//no_mec
     return data[_id_*d_step:(_id_+1)*d_step]
 
