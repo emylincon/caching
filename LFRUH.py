@@ -160,7 +160,11 @@ class LocalCache:
             self.cache_miss(location_id=location_hash, url=url, add_content_hash=1)
         else:
             self.cache_miss(location_id=location_hash, content_hash=content_hash, url=url,  add_content_hash=0)
-        self.add_req_to_list(content_hash)
+        if content_hash:
+            self.add_req_to_list(content_hash)
+        else:
+            content_hash = self.get_content_hash(location_hash=location_hash)
+            self.add_req_to_list(content_hash)
 
     @staticmethod
     def display_data(kind, content_hash=None, data=None):
