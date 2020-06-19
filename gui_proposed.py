@@ -655,7 +655,7 @@ def split_data(_id_, no_mec):
 
 
 def get_host_id():
-    cmd = ['hostname']
+    cmd = ['cat /etc/hostname']
     hostname = str(sp.check_output(cmd, shell=True), 'utf-8')[:-1]
     try:
         host_id = int(re.findall('[0-9]+', hostname)[0])
