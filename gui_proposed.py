@@ -78,7 +78,9 @@ class Record:
 
 class CPU(Record):
     def get_data(self):
-        return round(self.system.cpu_percent(), 4)
+        cpu = psutil.cpu_percent(percpu=False)
+        #return round(self.system.cpu_percent(), 4)
+        return round(cpu, 4)
 
 
 class Memory(Record):
@@ -90,9 +92,10 @@ class MecDelay:
     def __init__(self, window_size):
         self.delays = {}  # {mec: []}
         self.window_size = window_size
+        self.my_ip = ip_address()
 
     def add_mec(self, mec):
-        if mec not in self.delays:
+        if (mec not in self.delays) and (mec != self.my_ip):
             shared_resource_lock.acquire()
             self.delays[mec] = [self.get_delay(mec)]
             shared_resource_lock.release()
@@ -518,7 +521,7 @@ class LocalCache:
                             linewidth=2)
                 lix = list(range(len(con) + len(ant)))
                 liy = [i for _ in lix]
-                lab = ant_name + con_name
+                lab = list(ant_name) + list(con_name)
                 for x, y in zip(lix, liy):
                     label = fr'$Url_{lab[x]}$'
                     # this method is called for each point
