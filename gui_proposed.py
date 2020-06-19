@@ -23,6 +23,8 @@ import matplotlib.pyplot as plt
 
 shared_resource_lock = threading.Lock()
 
+#plt.ion()
+
 fig = plt.figure()
 ax1 = fig.add_subplot(231)
 ax2 = fig.add_subplot(232)
@@ -738,7 +740,7 @@ def run_me():
             print(f'Requesting {url}')
             local_cache.request(url)
             mec_rtt.add_delay()
-            plot_graphs()
+            show_graphs()
             time.sleep(1)
 
         local_cache.hit_ratio()
