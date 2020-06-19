@@ -371,7 +371,7 @@ class AssociateCache:
         df = self.data_preparation()
         frequent_items = apriori(df, min_support=0.45, use_colnames=True)
         rules = association_rules(frequent_items, metric='lift', min_threshold=1)
-        rul_sort = rules.sort_values(by=['support', 'confidence', 'lift'])
+        rul_sort = rules.sort_values(by=['support', 'lift', 'conviction'])  # ['support', 'confidence', 'lift']
         if len(rul_sort) > self.rule_no:
             rule_dict = [[list(rul_sort.values[-i,0]), list(rul_sort.values[-i,1])] for i in range(1, self.rule_no+1)]
         else:
