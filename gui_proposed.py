@@ -492,13 +492,12 @@ class LocalCache:
             else:
                 explode.append(0)
 
-        ax.pie(val, labels=['Right', 'Wrong'], shadow=True, explode=explode, colors=['g', 'r'])
-        ax.legend()
+        ax.pie(val, autopct='%1.1f%%', shadow=True, explode=explode, colors=['g', 'r'])
         ax.set_title('Association Prediction')
         plt.subplot(ax)
 
     def plot_association(self, ax):
-        data = list(self.rule_matches['rules'].items())
+        data = list(self.rule_matches['rules'].items())[-7:]
         if len(data) != 0:
             legend_control = 0
             for i in range(len(data)):
@@ -539,7 +538,7 @@ class LocalCache:
                                 xytext=(0, 7),  # distance from text to points (x,y)
                                 ha='center')  # horizontal alignment can be left, right or center
             ax.set_title('Association Rules')
-            ax.legend()
+            #ax.legend()
             ax.axis('off')
             plt.subplot(ax)
 
