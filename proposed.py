@@ -109,7 +109,7 @@ class LocalCache:
         self.hash_dns = {'all':[], 'window': 300}    # {location_hash: content_hash}
         self.to_delete = ['test']
         self.pre_cached = 0
-        self.rule_matches = {'match': [], 'right': 0, 'wrong': 0}
+        self.rule_matches = {'match': [], 'right': 0, 'wrong': 0, 'rules': {}}
 
     def get_json_data(self, endpoint, send=None):
         url = f'http://{self.content_name_server}/'
@@ -322,6 +322,7 @@ class LocalCache:
             if self.req[-len(association[0]):] == association[0]:
                 self.display_me(header=f'Association Match {match + 1}', data=association)
                 self.rule_matches['match'] += association[1]
+                self.rule_matches['rules'][tuple(association[0])] = association[1]
                 for i in association[1]:
                     self.pre_cache(i)
                     match += 1
@@ -356,6 +357,8 @@ class LocalCache:
         print('Pre-cached: ', self.pre_cached)
         pred = round((self.rule_matches['right']/(self.rule_matches['right']+self.rule_matches['wrong'])) * 100)
         print('Right Predictions: ', pred, '%')
+        print(f"Generated {self.rule_matches['right']+self.rule_matches['wrong']} rules | "
+              f"{len(self.rule_matches['rules'])} are unique")
 
 
 class AssociateCache:
