@@ -53,7 +53,10 @@ class Record:
 
     def calculate_mov_avg(self, a1):
         _count = len(self.data_set)
-        avg1 = self.data_set[-1]
+        if _count == 0:
+            avg1 = 0
+        else:
+            avg1 = self.data_set[-1]
         _count += 1
         avg1 = ((_count - 1) * avg1 + a1) / _count  # cumulative average formula μ_n=((n-1) μ_(n-1)  + x_n)/n
         return round(avg1, 4)
