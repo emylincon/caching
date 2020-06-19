@@ -197,8 +197,9 @@ class LocalCache:
         self.window_size = window_size
         self.cache_store = {}
         self.cache_history = {}  # id : {'steps': 1, 'freq':1}
-        self.hash_dns = {'all': [], 'window': 300}  # {location_hash: content_hash}
+        self.hash_dns = {'all': [], 'window': 600}  # {location_hash: content_hash}
         self.to_delete = ['test']
+        self.pre_cached = 0
         self.rule_matches = {'match': [], 'right': 0, 'wrong': 0, 'rules': {}, 'window_count': 0,
                              'window_size': int(self.window_size / 2)}
 
@@ -224,14 +225,21 @@ class LocalCache:
         hash_no = ha.hexdigest()
         return hash_no
 
-    def add_hash_dns(self, location_hash, content_hash):
-        if location_hash not in self.hash_dns:
+    def add_hash_dns(self, content_hash, url, location_hash=None):
+        if location_hash and (location_hash not in self.hash_dns):
             if len(self.hash_dns) > self.hash_dns['window']:
                 del self.hash_dns[self.hash_dns['all'].pop(0)]
             self.hash_dns[location_hash] = content_hash
+            self.hash_dns[content_hash] = url
             self.hash_dns['all'].append(location_hash)
+            self.hash_dns['all'].append(content_hash)
+        elif content_hash not in self.hash_dns:
+            if len(self.hash_dns) > self.hash_dns['window']:
+                del self.hash_dns[self.hash_dns['all'].pop(0)]
+            self.hash_dns[content_hash] = url
+            self.hash_dns['all'].append(content_hash)
 
-    def get_content_hash(self, location_hash):
+    def get_content_hash(self, location_hash, url):
         if location_hash in self.hash_dns:
             self.hash_dns['all'].remove(location_hash)
             self.hash_dns['all'].append(location_hash)
@@ -239,22 +247,53 @@ class LocalCache:
         else:
             content_hash = self.get_json_data(endpoint=f'read/hash/{location_hash}')
             if content_hash['hash']:
-                self.add_hash_dns(location_hash, content_hash['hash'])
+                self.add_hash_dns(location_hash=location_hash, content_hash=content_hash['hash'], url=url)
                 return content_hash['hash']
             else:
                 return None
 
+    def get_hash_url(self, content_hash):
+        if content_hash in self.hash_dns:
+            self.hash_dns['all'].remove(content_hash)
+            self.hash_dns['all'].append(content_hash)
+            return self.hash_dns[content_hash]
+        else:
+            url = self.get_json_data(endpoint=f'read/url/{content_hash}')['url']
+            if url:
+                self.add_hash_dns(content_hash=content_hash, url=url)
+                return url
+            else:
+                return None
+
+    def association_match_count(self, req):
+        if len(self.rule_matches['match']) != 0:
+            if req in self.rule_matches['match']:
+                self.rule_matches['right'] += 1
+            else:
+                self.rule_matches['wrong'] += 1
+            self.rule_matches['match'] = []
+
     def request(self, url):
         location_hash = self.get_hash(url)
-        content_hash = self.get_content_hash(location_hash)
+        content_hash = self.get_content_hash(location_hash=location_hash, url=url)
         if content_hash and (content_hash in self.cache_store):
             self.cache_hit(content_hash)
         elif not content_hash:
             self.cache_miss(location_id=location_hash, url=url, add_content_hash=1)
         else:
             self.cache_miss(location_id=location_hash, content_hash=content_hash, url=url, add_content_hash=0)
-        self.add_req_to_list(content_hash)
-        self.check_association()
+        if content_hash:
+            self.add_req_to_list(content_hash)
+            self.association_match_count(content_hash)
+        else:
+            content_hash = self.get_content_hash(location_hash=location_hash, url=url)
+            self.add_req_to_list(content_hash)
+            self.association_match_count(content_hash)
+        if self.rule_matches['window_count'] == self.rule_matches['window_size']:
+            self.check_association()
+            self.rule_matches['window_count'] = 0
+        else:
+            self.rule_matches['window_count'] += 1
 
     @staticmethod
     def display_data(kind, content_hash=None, data=None):
@@ -292,7 +331,7 @@ class LocalCache:
             self.display_data(data=cache, kind='Miss')
             if add_content_hash == 1:
                 self.get_json_data(endpoint='add/', send=[location_id, con_hash, url])  # add to dns chain
-                self.add_hash_dns(location_hash=location_id, content_hash=con_hash)
+                self.add_hash_dns(location_hash=location_id, content_hash=con_hash, url=url)
 
     def miss_decision(self, hash_no, data):
         if self.is_cache_full():
@@ -302,9 +341,9 @@ class LocalCache:
         else:
             self.cache_data(hash_no, data)  # caches data
             self.cache_store[hash_no] = 0  # adds to cache store
-            # if cache is not full and there is a miss, cache wont be in history
             self.cache_history[hash_no] = [1,
                                            time.time()]
+            # if cache is not full and there is a miss, cache wont be in history
 
     @staticmethod
     def fetch_from_mec(hash_no, host_ip):
@@ -360,7 +399,7 @@ class LocalCache:
         return victim
 
     def replace(self, cache_hash):
-        cache_decision = 0  # 0 means dont cache, 1 means cache
+        cache_decision = 0  # 0 means don't cache, 1 means cache
         if cache_hash in self.cache_history:  # cache only if its in history
             replace = self.get_victim()
             if self.cache_history[cache_hash][1] > self.cache_history[replace][1]:
@@ -384,7 +423,7 @@ class LocalCache:
             if node:
                 cache = self.fetch_from_mec(hash_no=cache_hash, host_ip=node)
             else:
-                url = self.get_json_data(endpoint=f'read/url/{cache_hash}')['url']
+                url = self.get_hash_url(content_hash=cache_hash)
                 cache = self.get_data(url=url)
             if self.is_cache_full():
                 replace = self.get_victim()
@@ -392,18 +431,21 @@ class LocalCache:
             self.cache_store[cache_hash] = 0
             self.cache_data(cache_hash, cache, pub=0)
             self.display_me(header='Association Pre-cache', data=f'Pre-cached {cache_hash}')
+            self.pre_cached += 1
         else:
             self.display_me(header='Association Pre-cache', data=f'Already in Store {cache_hash}')
 
     def apply_association(self, rules):
         match = 0
         for association in rules:  # rules = [[[1,2], [2]], [[1,2], [2]]]
+            self.rule_matches['rules'][tuple(association[0])] = association[1]
             if self.req[-len(association[0]):] == association[0]:
-                if association[1][0]:
-                    self.display_me(header='Association Match', data=association)
-                    self.pre_cache(association[1][0])
+                self.display_me(header=f'Association Match {match + 1}', data=association)
+                self.rule_matches['match'] += association[1]
+                for i in association[1]:
+                    self.pre_cache(i)
                     match += 1
-                    break
+
         if match == 0:
             print('No Association Match!')
 
@@ -423,7 +465,7 @@ class LocalCache:
                 data = self.req[-data_len:]
                 print(f'Generating Association rules for data {group_no}x{len(data)}')
                 t1 = time.time()
-                rules = AssociateCache(data=data, rule_no=3, group_no=group_no).gen_rules()
+                rules = AssociateCache(data=data, rule_no=6, group_no=group_no).gen_rules()
                 t2 = time.time()
                 self.display_me(header=f'Association Rules | Time: {round(t2-t1, 5)}', data=rules)
                 self.apply_association(rules=rules)
@@ -511,7 +553,12 @@ class LocalCache:
 
     def hit_ratio(self):
         print('Hit ratio: ', round((((self.hit + self.mec_hit) / (self.hit + self.mec_hit + self.miss)) * 100)), '%')
-        print('mec hit ratio: ', round(self.mec_hit / (self.hit + self.mec_hit) * 100), '%')
+        print('mec hit ratio: ', round((self.mec_hit / (self.hit + self.mec_hit)) * 100), '%')
+        print('Pre-cached: ', self.pre_cached)
+        pred = round((self.rule_matches['right'] / (self.rule_matches['right'] + self.rule_matches['wrong'])) * 100)
+        print('Right Predictions: ', pred, '%')
+        print(f"Generated {self.rule_matches['right']+self.rule_matches['wrong']} rules | "
+              f"{len(self.rule_matches['rules'])} are unique")
 
 
 class AssociateCache:
