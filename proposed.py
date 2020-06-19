@@ -23,9 +23,10 @@ class MecDelay:
     def __init__(self, window_size):
         self.delays = {}  # {mec: []}
         self.window_size = window_size
+        self.my_ip = ip_address()
 
     def add_mec(self, mec):
-        if mec not in self.delays:
+        if (mec not in self.delays) and (mec != self.my_ip):
             shared_resource_lock.acquire()
             self.delays[mec] = [self.get_delay(mec)]
             shared_resource_lock.release()
