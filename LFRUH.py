@@ -273,7 +273,7 @@ class LocalCache:
         cache_decision = 0  # 0 means dont cache, 1 means cache
         if cache_hash in self.cache_history:  # cache only if its in history
             replace = self.get_victim()
-            if self.cache_history[cache_hash][1] > self.cache_history[replace][1]:  
+            if self.cache_history[cache_hash][1] > self.cache_history[replace][1]:
                 # replace only if it has occurred more recently than the victim
                 self.remove_cache(cache_hash, replace)
                 self.cache_store[cache_hash] = 0
@@ -355,7 +355,7 @@ def ip_address():
 
 
 def split_data(_id_, no_mec):
-    data = pd.read_csv(r'cache_request/lest.csv')  # replace with your data-set
+    data = pd.read_csv(r'cache_request/cache_data.csv')  # replace with your data-set
     d_step = len(data) // no_mec
     return data[_id_ * d_step:(_id_ + 1) * d_step]
 
