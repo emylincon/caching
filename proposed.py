@@ -112,7 +112,7 @@ class LocalCache:
         self.to_delete = ['test']
         self.pre_cached = 0
         self.rule_matches = {'match': [], 'right': 0, 'wrong': 0, 'rules': [], 'window_count': 0,
-                             'window_size': int(self.window_size / 2)}
+                             'window_size': int(self.window_size / 2), 'rule_count': 0}
 
     def get_json_data(self, endpoint, send=None):
         url = f'http://{self.content_name_server}/'
@@ -204,6 +204,8 @@ class LocalCache:
             self.check_association()
             self.rule_matches['window_count'] = 0
         else:
+            if len(self.rule_matches['rules']) > 0:
+                self.apply_association(self.rule_matches['rules'])
             self.rule_matches['window_count'] += 1
 
     @staticmethod
@@ -387,6 +389,7 @@ class LocalCache:
         print('\n' + '*' * 100 + '\n')
 
     def check_association(self):
+        rule_no = 6
         if len(self.req) >= self.window_size:
             group_no = len(set(self.req[-self.window_size:]))
             data_len = group_no ** 2
@@ -394,7 +397,8 @@ class LocalCache:
                 data = self.req[-data_len:]
                 print(f'Generating Association rules for data {group_no}x{len(data)}')
                 t1 = time.time()
-                rules = AssociateCache(data=data, rule_no=6, group_no=group_no).gen_rules()
+                rules = AssociateCache(data=data, rule_no=rule_no, group_no=group_no).gen_rules()
+                self.rule_matches['rule_count'] += rule_no
                 t2 = time.time()
                 self.display_me(header=f'Association Rules | Time: {round(t2-t1, 5)}', data=rules)
                 self.apply_association(rules=rules)
@@ -405,8 +409,10 @@ class LocalCache:
         print('Pre-cached: ', self.pre_cached)
         pred = round((self.rule_matches['right'] / (self.rule_matches['right'] + self.rule_matches['wrong'])) * 100)
         print('Right Predictions: ', pred, '%')
-        print(f"Generated {self.rule_matches['right']+self.rule_matches['wrong']} rules | "
+        print(f"Generated {self.rule_matches['rule_count']} rules | "
               f"{len(self.rule_matches['rules'])} are unique")
+        print(f"No of association matches: ", self.rule_matches['right'] + self.rule_matches['wrong'])
+        print(f"Right: {self.rule_matches['right']}   | Wrong: {self.rule_matches['wrong']}")
 
 
 class AssociateCache:
@@ -419,7 +425,7 @@ class AssociateCache:
         df = self.data_preparation()
         frequent_items = apriori(df, min_support=0.45, use_colnames=True)
         rules = association_rules(frequent_items, metric='lift', min_threshold=1)
-        rul_sort = rules.sort_values(by=['support', 'lift', 'conviction'])  # ['support', 'confidence', 'lift']
+        rul_sort = rules.sort_values(by=['support', 'conviction', 'lift'])  # ['support', 'confidence', 'lift']
         if len(rul_sort) > self.rule_no:
             rule_dict = [[list(rul_sort.values[-i, 0]), list(rul_sort.values[-i, 1])] for i in
                          range(1, self.rule_no + 1)]
