@@ -355,13 +355,14 @@ class LocalCache:
         matches_not_checked = self.rule_matches['rules'][:]
 
         def match_association(association_):
-            global match
+            m = 0
             if self.req[-len(association_[0]):] == association_[0]:
                 self.display_me(header=f'Association Match {match + 1}', data=association_)
                 self.rule_matches['match'] += association_[1]
                 for i in association_[1]:
                     self.pre_cache(i)
-                    match += 1
+                    m += 1
+            return m
 
         for association in rules:  # rules = [[[1,2], [2]], [[1,2], [2]]]
             #self.rule_matches['rules'][tuple(association[0])] = association[1]
@@ -369,12 +370,12 @@ class LocalCache:
                 self.add_unique_association(association)
             else:
                 matches_not_checked.remove(association)
-            match_association(association)
+            match += match_association(association)
 
         if match == 0 and len(matches_not_checked) != 0:
             for association in matches_not_checked:
-                match_association(association)
-        else:
+                match += match_association(association)
+        elif match == 0:
             print('No Association Match!')
 
     @staticmethod
