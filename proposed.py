@@ -111,7 +111,7 @@ class LocalCache:
         self.hash_dns = {'all': [], 'window': 600}  # {location_hash: content_hash}
         self.to_delete = ['test']
         self.pre_cached = 0
-        self.rule_matches = {'match': [], 'right': 0, 'wrong': 0, 'rules': {}, 'window_count': 0,
+        self.rule_matches = {'match': [], 'right': 0, 'wrong': 0, 'rules': [], 'window_count': 0,
                              'window_size': int(self.window_size / 2)}
 
     def get_json_data(self, endpoint, send=None):
@@ -345,19 +345,36 @@ class LocalCache:
             self.pre_cached += 1
         else:
             self.display_me(header='Association Pre-cache', data=f'Already in Store {cache_hash}')
+    
+    def add_unique_association(self, rule):
+        if rule not in self.rule_matches['rules']:
+            self.rule_matches['rules'].append(rule)
 
     def apply_association(self, rules):
         match = 0
-        for association in rules:  # rules = [[[1,2], [2]], [[1,2], [2]]]
-            self.rule_matches['rules'][tuple(association[0])] = association[1]
-            if self.req[-len(association[0]):] == association[0]:
-                self.display_me(header=f'Association Match {match + 1}', data=association)
-                self.rule_matches['match'] += association[1]
-                for i in association[1]:
+        matches_not_checked = self.rule_matches['rules'][:]
+
+        def match_association(association_):
+            global match
+            if self.req[-len(association_[0]):] == association_[0]:
+                self.display_me(header=f'Association Match {match + 1}', data=association_)
+                self.rule_matches['match'] += association_[1]
+                for i in association_[1]:
                     self.pre_cache(i)
                     match += 1
 
-        if match == 0:
+        for association in rules:  # rules = [[[1,2], [2]], [[1,2], [2]]]
+            #self.rule_matches['rules'][tuple(association[0])] = association[1]
+            if association not in matches_not_checked:
+                self.add_unique_association(association)
+            else:
+                matches_not_checked.remove(association)
+            match_association(association)
+
+        if match == 0 and len(matches_not_checked) != 0:
+            for association in matches_not_checked:
+                match_association(association)
+        else:
             print('No Association Match!')
 
     @staticmethod
