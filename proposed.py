@@ -64,15 +64,17 @@ class MecCache:
     def __init__(self):
         self.nodes = set()
         self.cache_store = {}  # {cache_id: {mec1, mec2}, ..}
+        self.my_ip = ip_address()
 
     def add_cache(self, cache_content_hash, mec):  # multi-cast from mec
-        if mec not in self.nodes:
-            self.nodes.add(mec)
-            mec_rtt.add_mec(mec)
-        if cache_content_hash in self.cache_store:
-            self.cache_store[cache_content_hash].add(mec)
-        else:
-            self.cache_store[cache_content_hash] = {mec}
+        if mec != self.my_ip:
+            if mec not in self.nodes:
+                self.nodes.add(mec)
+                mec_rtt.add_mec(mec)
+            if cache_content_hash in self.cache_store:
+                self.cache_store[cache_content_hash].add(mec)
+            else:
+                self.cache_store[cache_content_hash] = {mec}
 
     def find_cache(self, cache_content_hash):
         def get_min_delay_mec(mec_list):
@@ -367,7 +369,7 @@ class LocalCache:
             return m
 
         for association in rules:  # rules = [[[1,2], [2]], [[1,2], [2]]]
-            #self.rule_matches['rules'][tuple(association[0])] = association[1]
+            # self.rule_matches['rules'][tuple(association[0])] = association[1]
             if association not in matches_not_checked:
                 self.add_unique_association(association)
             else:
