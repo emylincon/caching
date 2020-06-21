@@ -423,6 +423,8 @@ class LocalCache:
               f"{len(self.rule_matches['rules'])} are unique")
         print(f"No of association matches: ", self.rule_matches['right'] + self.rule_matches['wrong'])
         print(f"Right: {self.rule_matches['right']}   | Wrong: {self.rule_matches['wrong']}")
+        print(f"right Pre_cache: {self.rule_matches['right_pre_cache']} |"
+              f" wrong pre_cache: {self.rule_matches['wrong_pre_cache']}")
 
 
 class AssociateCache:
