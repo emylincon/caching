@@ -114,7 +114,8 @@ class LocalCache:
         self.to_delete = ['test']
         self.pre_cached = 0
         self.rule_matches = {'match': [], 'right': 0, 'wrong': 0, 'rules': [], 'window_count': 0,
-                             'window_size': int(self.window_size / 2), 'rule_count': 0}
+                             'window_size': int(self.window_size / 2), 'rule_count': 0, 'pre_cache_check': 0,
+                             'right_pre_cache': 0, 'wrong_pre_cache': 0}
 
     def get_json_data(self, endpoint, send=None):
         url = f'http://{self.content_name_server}/'
@@ -182,8 +183,14 @@ class LocalCache:
         if len(self.rule_matches['match']) != 0:
             if req in self.rule_matches['match']:
                 self.rule_matches['right'] += 1
+                if self.rule_matches['pre_cache_check'] != 0:
+                    self.rule_matches['right_pre_cache'] += 1
+                    self.rule_matches['pre_cache_check'] = 0
             else:
                 self.rule_matches['wrong'] += 1
+                if self.rule_matches['pre_cache_check'] != 0:
+                    self.rule_matches['wrong_pre_cache'] += 1
+                    self.rule_matches['pre_cache_check'] = 0
             self.rule_matches['match'] = []
 
     def request(self, url):
@@ -347,6 +354,7 @@ class LocalCache:
             self.cache_data(cache_hash, cache, pub=0)
             self.display_me(header='Association Pre-cache', data=f'Pre-cached {cache_hash}')
             self.pre_cached += 1
+            self.rule_matches['pre_cache_check'] += 1
         else:
             self.display_me(header='Association Pre-cache', data=f'Already in Store {cache_hash}')
     
