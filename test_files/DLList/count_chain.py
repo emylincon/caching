@@ -344,21 +344,21 @@ class CountChain:      # replace and maintain count and maintain boundary
         return round((self.hit/(self.hit+self.miss))*100, 2)
 
 
-d_l = CountChain(7)
-# for j in range(8):
-#     d.push(j)
-# print(d.new_boundary.data, d.old_boundary.data)
-# print('f', d.freq_count_display())
-
-p_list = [i for i in range(1, 8)] + [1, 1, 5, 6, 1, 2, 8, 3, 4, 7, 5, 3, 2] + [1,5,7,2,3,5,1,3,7,2]
-n_n = lambda x: None if x is None else x.data
-for i in p_list:
-    d_l.push(i)
-    print(f'\nboundary {i} | old-> {n_n(d_l.old_boundary)}  | new-> {n_n(d_l.new_boundary)}')
-    print(f'details {i}: ', d_l.details_display())
-
-print('f_count:', d_l.freq_count_display())
-print('d_data:', d_l.data_display())
-print(d_l.average_count)
-print(len(d_l.table))
-print(d_l.hit_ratio())
+# d_l = CountChain(7)
+# # for j in range(8):
+# #     d.push(j)
+# # print(d.new_boundary.data, d.old_boundary.data)
+# # print('f', d.freq_count_display())
+#
+# p_list = [i for i in range(1, 8)] + [1, 1, 5, 6, 1, 2, 8, 3, 4, 7, 5, 3, 2] + [1,5,7,2,3,5,1,3,7,2]
+# n_n = lambda x: None if x is None else x.data
+# for i in p_list:
+#     d_l.push(i)
+#     print(f'\nboundary {i} | old-> {n_n(d_l.old_boundary)}  | new-> {n_n(d_l.new_boundary)}')
+#     print(f'details {i}: ', d_l.details_display())
+#
+# print('f_count:', d_l.freq_count_display())
+# print('d_data:', d_l.data_display())
+# print(d_l.average_count)
+# print(len(d_l.table))
+# print(d_l.hit_ratio())
