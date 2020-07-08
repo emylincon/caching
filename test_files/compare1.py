@@ -259,7 +259,7 @@ def zipf_dist(length, maximum):  # length = length of array, maximum = max numbe
 
 
 def plot_comparison():
-    ref = zipf_dist(500, 40)
+    ref = zipf_dist(1500, 40)
     c_sizes = [7,10]
     axs = [ax1, ax2]
     color = ['r', 'b', 'g', 'm', 'c', 'brown', 'k', 'lime']
