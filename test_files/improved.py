@@ -31,6 +31,10 @@ class Heap:
         self.heap.remove(item)
         heapq.heapify(self.heap)
 
+    @property
+    def total_count(self):
+        return sum(self.heap)
+
 
 # A linked list node
 class Node:
@@ -56,6 +60,14 @@ class Node:
 
     def reduce_count(self):
         self.count = math.ceil(self.count / 2)
+
+    @staticmethod
+    def retrieval_cost(file_size):
+        """:arg
+        file size can be calculated by the number of characters in the file.
+        Each character represents 1 byte
+        """
+        return 2 + (file_size/536)
 
 
 class FIFO:
@@ -124,6 +136,12 @@ class FIFO:
             d_list.append(node.data)
             node = node.next
         return d_list
+
+    def reduce_count(self):
+        node = self.head
+        while node:
+            node.reduce_count()
+            node = node.next
 
 
 # Class to create a Doubly Linked List
@@ -291,20 +309,41 @@ class LFRU:
     def __init__(self, cache_size):
         self.cache_size = cache_size
         self.sorted_freq = Heap()
-        self.history = FIFO(1000)
+        self.history = FIFO(cache_size*8)
         self.chain = {}
         self.table = {}
         self.length = 0
         self.hit = 0
         self.miss = 0
+        self.avg_max = 4
+
+    @property
+    def average_count(self):
+        return round(self.sorted_freq.total_count / self.length, 2)
+
+    def maintain_count(self):
+        if self.average_count > self.avg_max:
+            # print('start: ', self.details_display())
+            new_chain = {}
+            freq_list = Heap()
+
+            def reduce_count(node):
+                while node:
+                    node.reduce_count()
+                    if node.count not in new_chain: new_chain[node.count] = LRUChain()
+                    new_chain[node.count].push(node)
+                    if node.count not in freq_list.heap: freq_list.push(node.count)
+                    node = node.prev
+
+            for chain in self.chain.values():
+                reduce_count(chain.tail)
+            self.history.reduce_count()
+            self.chain = new_chain
+            self.sorted_freq = freq_list
 
     def push(self, data):
         # print(data)
         new_node = Node(data)
-        if data == 2:
-            pass
-            #print('before: ', self.details_display())
-            #print('before: ', self.data_display())
         decision = (1, None)
         if new_node.id in self.table:
             new_node = self.table[new_node.id]   # dont remove this, it is useful, even if you dont think it is
@@ -339,6 +378,7 @@ class LFRU:
             except KeyError:
                 self.chain[new_node.count] = LRUChain()
                 self.chain[new_node.count].push(new_node)
+        self.maintain_count()
 
     def maintain_cache_size(self, node):
         cache_decision = 0  # 0 means don't cache, 1 means cache
@@ -386,12 +426,13 @@ class LFRU:
 
 my_cache = LFRU(3)
 
-ref = [1,2,1,1,2,3,1,1,3,5,6,1,2,4,2,3,5,2,2,5,2,2,5,6,1,3,4]
-#ref = [1, 2, 4, 2, 2, 1, 2, 3, 2, 1, 1, 1, 1, 0, 4, 5, 1, 4, 0, 5, 4, 2, 5, 4, 4, 2, 3, 3, 3, 3, 1, 1, 1, 0, 1, 5, 1, 6, 3, 5, 0, 5, 1, 1, 2, 3, 0, 1, 1, 1, 1, 5, 5, 1, 2, 4, 1, 4, 2, 1, 5, 0, 3, 3, 2, 4, 3, 5, 3, 1]
+#ref = [1,2,1,1,2,3,1,1,3,5,6,1,2,4,2,3,5,2,2,5,2,2,5,6,1,3,4]
+ref = [1, 2, 4, 2, 2, 1, 2, 3, 2, 1, 1, 1, 1, 0, 4, 5, 1, 4, 0, 5, 4, 2, 5, 4, 4, 2, 3, 3, 3, 3, 1, 1, 1, 0, 1, 5, 1, 6, 3, 5, 0, 5, 1, 1, 2, 3, 0, 1, 1, 1, 1, 5, 5, 1, 2, 4, 1, 4, 2, 1, 5, 0, 3, 3, 2, 4, 3, 5, 3, 1]
 #ref = [7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 1, 2, 0, 1, 7, 0, 1]
 for j in ref:
     my_cache.push(j)
     print(f'data ({j}) ->', my_cache.data_display())
+    print('avg_freq', my_cache.average_count)
     time.sleep(0.0000001)
 
 
