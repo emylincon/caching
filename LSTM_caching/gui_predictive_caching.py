@@ -12,6 +12,7 @@ import re
 import argparse
 import smtplib
 import config
+import paho.mqtt.client as mqtt
 from drawnow import *
 import matplotlib.pyplot as plt
 import matplotlib
@@ -314,7 +315,7 @@ def arrival_distribution():
 
 
 def plot_graphs():
-    cpu.plot_data(ax1, 'b')
+    cpu_record.plot_data(ax1, 'b')
     memory.plot_data(ax2, 'm')
     network_cost_record.plot_data(ax3)
     store.plot_cache_performance(ax4)
@@ -325,18 +326,65 @@ def show_graphs():
     drawnow(plot_graphs)
 
 
+class BrokerRequest:
+    def __init__(self, user, pw, ip, sub_topic):
+        self.user = user
+        self.pw = pw
+        self.ip = ip
+        self.port = 1883
+        self.topic = sub_topic
+        self.response = None
+        self.client = mqtt.Client()
+
+    def on_connect(self, connect_client, userdata, flags, rc):
+        print("Connected with Code :" + str(rc))
+        # Subscribe Topic from here
+        connect_client.subscribe(self.topic)
+
+    def on_message(self, message_client, userdata, msg):
+        if pickle.loads(msg.payload):
+            self.response = pickle.loads(msg.payload)
+
+    def broker_loop(self):
+        self.client.on_connect = self.on_connect
+        self.client.on_message = self.on_message
+
+        self.client.username_pw_set(self.user, self.pw)
+        self.client.connect(self.ip, self.port, 60)
+        self.client.loop_start()
+        while True:
+            if self.response:
+                self.client.loop_stop()
+                self.client.disconnect()
+                return self.response
+
+    def __del__(self):
+        print('BrokerRequest Object Deleted!')
+
+
+def initialization():
+    br = BrokerRequest(user='mec', pw='password', ip='192.168.200.100', sub_topic='control')
+    br.broker_loop()
+    del br
+    print('starting ....')
+
+
 def run(no_mec):
-    global cpu
+    global cpu_record
     global memory
     global store
     global network_cost_record
+
+    os.system('clear')
+    print('Waiting for Start command from Control...')
+    initialization()
 
     request_data = pd.read_csv(f'../request_data.csv')
     no_reqs = int(request_data.shape[0] * 0.3)  # testing data is 30 % => 67,259
     n = 150
     no_of_requests = (no_reqs // n) * n        # No of requests should be divisible by 5, 10, 15 MECs |  67,200
 
-    cpu = CPU(window_size=1000, title='cpu')
+    cpu_record = CPU(window_size=1000, title='cpu')
     memory = Memory(window_size=1000, title='memory')
     network_cost_record = Delay()
 
@@ -348,13 +396,13 @@ def run(no_mec):
     for i in range(d_slice[0], d_slice[1]):
         print(f"requesting-> {request_data['movieId'][i]}")
         store.push(request_data['movieId'][i], request_data['timestamp'][i])
-        cpu.get_data()
+        cpu_record.get_data()
         memory.get_data()
         print(f'cache -> {store.cache}')
         show_graphs()
         time.sleep(arrival_dist.__next__())
     print('hit ratio ->', store.hit_ratio())
-    save_data(mem=memory.data_set, cpu=cpu.data_set, delay=network_cost_record.data_set,
+    save_data(mem=memory.data_set, cpu=cpu_record.data_set, delay=network_cost_record.data_set,
               hit_ratio=store.hit_ratio(), no=no_mec)
 
 
