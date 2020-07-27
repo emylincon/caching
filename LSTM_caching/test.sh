@@ -10,12 +10,16 @@
 #sudo apt update && sudo apt full-upgrade
 #sudo apt install openjdk-11-jdk
 
-git clone https://github.com/tensorflow/tensorflow.git
-cd tensorflow
-./configure
+#git clone https://github.com/tensorflow/tensorflow.git
+#cd tensorflow
+#./configure
+#
+#
+#
+#bazel build //tensorflow/tools/pip_package:build_pip_package
+#./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+#pip install /tmp/tensorflow_pkg/tensorflow-version-tags.whl
 
-
-
-bazel build //tensorflow/tools/pip_package:build_pip_package
-./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-pip install /tmp/tensorflow_pkg/tensorflow-version-tags.whl
+pip3 install -U --user pip six 'numpy<1.19.0' wheel setuptools mock 'future>=0.17.1'
+pip3 install -U --user keras_applications --no-deps
+pip3 install -U --user keras_preprocessing --no-deps
