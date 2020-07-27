@@ -300,7 +300,8 @@ def run(no_mec):
     print('Waiting for Start command from Control...')
     initialization()
     request_data = pd.read_csv(f'../request_data.csv')
-    no_reqs = int(request_data.shape[0] * 0.3)  # testing data is 30 % => 67,259
+    # no_reqs = int(request_data.shape[0] * 0.3)  # testing data is 30 % => 67,259
+    no_reqs = 70000  # testing data is 30 % => 67,259
     n = 150
     no_of_requests = (no_reqs // n) * n        # No of requests should be divisible by 5, 10, 15 MECs |  67,200
 
@@ -309,7 +310,7 @@ def run(no_mec):
     network_cost_record = Delay()
 
     d_slice = data_slice(no_mec=no_mec, total_req_no=no_of_requests, initial=request_data.shape[0]-no_of_requests)
-    store = LocalCache(cache_size=100, delay=network_cost_record)
+    store = LocalCache(cache_size=60, delay=network_cost_record)
     # pickle_in = open('dict.pickle','rb')
     # example_dict = pickle.load(pickle_in)
     arrival_dist = arrival_distribution()
