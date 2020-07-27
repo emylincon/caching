@@ -243,7 +243,7 @@ class LocalCache:
         val = [self.percent(self.hit, total),
                self.percent(self.miss, total)]
         cols = ['g', 'r']
-        ypos = ([0, 1, 2])
+        ypos = ([0, 1])
 
         values = [self.hit, self.miss]
         for i in values:
