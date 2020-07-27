@@ -23,7 +23,7 @@ pip3 install netifaces
 pip3 install mlxtend
 pip3 install pandas
 pip3 install requests
-
+pip3 install wget
 echo "installing openssh...\n"
 apt install openssh-client -y
 apt install openssh-server -y
