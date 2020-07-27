@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-wget http://bzip.org/1.0.6/bzip2-1.0.6.tar.gz
-tar xpzf bzip2-1.0.6.tar.gz
-cd bzip2-1.0.6
-make
-make -f Makefile-libbz2_so
-make install PREFIX=/path/to/local # /usr/local by default
+apt install unzip libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev
+apt install libncursesw5-dev xz-utils python-pip python-virtualenv python3-pip python3-venv python-dev python3-dev
+apt install libopenblas-base libopenblas-dev
