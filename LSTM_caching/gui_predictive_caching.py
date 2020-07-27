@@ -305,6 +305,9 @@ def save_data(mem, cpu, delay, hit_ratio, no):
     file = open(f'output{host_no}_{no}.py', 'w')
     file.write(data)
     file.close()
+    send_path = '/home/osboxes/results/'
+    sp.run(
+        ["scp", f'results/output{host_no}_{no}.py', f"osboxes@192.168.200.100:{send_path}"])
 
 
 def arrival_distribution():
