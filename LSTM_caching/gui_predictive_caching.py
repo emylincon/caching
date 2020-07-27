@@ -73,11 +73,7 @@ class CPU(Record):
     def get_data(self):
         cpu = psutil.cpu_percent(percpu=False)
         # return round(self.system.cpu_percent(), 4)
-        try:
-            lst = self.data_set[-1]
-        except IndexError:
-            lst = psutil.cpu_percent(percpu=False)
-        return round(abs(cpu - lst), 4)
+        return round(cpu, 4)
 
 
 class Memory(Record):
@@ -119,7 +115,6 @@ class Delay:
                 linewidth=2, **{'color': 'b', 'marker': 's'})
         ax.set_ylabel(self.title)
         ax.set_xlabel('Time (seconds)')
-        ax.legend()
         ax.set_title(f'{self.title} over Time')
         plt.subplot(ax)
 
@@ -385,8 +380,8 @@ def run(no_mec):
 
     request_data = pd.read_csv(f'../request_data.csv')
     # no_reqs = int(request_data.shape[0] * 0.3)  # testing data is 30 % => 67,259
-    no_reqs = 70000  # testing data is 30 % => 67,259
-    n = 5*8*12
+    no_reqs = 50000  # testing data is 30 % => 67,259
+    n = 5*8*10
     no_of_requests = (no_reqs // n) * n        # No of requests should be divisible by 4, 8, 12 MECs |  67,200
 
     cpu_record = CPU(window_size=1000, title='cpu')
@@ -401,9 +396,9 @@ def run(no_mec):
     for i in range(d_slice[0], d_slice[1]):
         print(f"requesting-> {request_data['movieId'][i]}")
         store.push(request_data['movieId'][i], request_data['timestamp'][i])
-        cpu_record.get_data()
-        memory.get_data()
-        print(f'cache -> {store.cache}')
+        cpu_record.add_data()
+        memory.add_data()
+        print(f'cache -> {len(store.cache)}')
         show_graphs()
         time.sleep(arrival_dist.__next__())
     print('hit ratio ->', store.hit_ratio())

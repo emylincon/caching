@@ -301,8 +301,8 @@ def run(no_mec):
     initialization()
     request_data = pd.read_csv(f'../request_data.csv')
     # no_reqs = int(request_data.shape[0] * 0.3)  # testing data is 30 % => 67,259
-    no_reqs = 70000  # testing data is 30 % => 67,259
-    n = 5*8 * 12
+    no_reqs = 50000  # testing data is 30 % => 67,259
+    n = 5*8*10
     no_of_requests = (no_reqs // n) * n        # No of requests should be divisible by 5, 10, 15 MECs |  67,200
 
     cpu = CPU(window_size=1000, title='cpu')
@@ -317,9 +317,9 @@ def run(no_mec):
     for i in range(d_slice[0], d_slice[1]):
         print(f"requesting-> {request_data['movieId'][i]}")
         store.push(request_data['movieId'][i], request_data['timestamp'][i])
-        cpu.get_data()
-        memory.get_data()
-        print(f'cache -> {store.cache}')
+        cpu.add_data()
+        memory.add_data()
+        print(f'cache -> {len(store.cache)}')
         time.sleep(arrival_dist.__next__())
     print('hit ratio ->', store.hit_ratio())
     save_data(mem=memory.data_set, cpu=cpu.data_set, delay=network_cost_record.data_set,
