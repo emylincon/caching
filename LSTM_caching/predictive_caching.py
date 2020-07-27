@@ -302,7 +302,7 @@ def run(no_mec):
     request_data = pd.read_csv(f'../request_data.csv')
     # no_reqs = int(request_data.shape[0] * 0.3)  # testing data is 30 % => 67,259
     no_reqs = 70000  # testing data is 30 % => 67,259
-    n = 8 * 12
+    n = 5*8 * 12
     no_of_requests = (no_reqs // n) * n        # No of requests should be divisible by 5, 10, 15 MECs |  67,200
 
     cpu = CPU(window_size=1000, title='cpu')
