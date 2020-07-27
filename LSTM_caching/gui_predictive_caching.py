@@ -189,9 +189,9 @@ class LocalCache:
     def get_file(self, request, temp=0):
         start = time.perf_counter()
         if temp == 1:
-            wget.download(self.web_page(request), f'temp/{request}')
+            wget.download(self.web_page(request), f'temp/{request}.html')
         else:
-            wget.download(self.web_page(request), f'{self.cache_dir}/{request}')
+            wget.download(self.web_page(request), f'{self.cache_dir}/{request}.html')
         cost = time.perf_counter() - start
         self.delay.add_data(round(cost, 5))
 
@@ -224,6 +224,7 @@ class LocalCache:
 
     def evict(self, victim):
         self.cache.pop(victim)
+        os.system(f'rm cache/{victim}.html')
 
     def hit_ratio(self):
         return round((self.hit / (self.hit + self.miss)) * 100, 2)
