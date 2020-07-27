@@ -1,0 +1,17 @@
+drawnow
+psutil
+matplotlib
+paramiko
+numpy
+paho-mqtt
+netifaces
+pandas
+mlxtend
+requests
+wget
+tensorflow==2.2.0
+scipy
+scikit-learn
+pillow
+h5py
+keras==2.3.1
