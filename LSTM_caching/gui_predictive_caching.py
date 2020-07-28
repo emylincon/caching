@@ -16,6 +16,7 @@ import paho.mqtt.client as mqtt
 from drawnow import *
 import matplotlib.pyplot as plt
 import matplotlib
+import random as r
 matplotlib.use('TkAgg')
 
 fig = plt.figure()
@@ -34,6 +35,7 @@ class Record:
         self.data_set = []
         self.window_size = window_size
         self.title = title
+        self.count = 0
 
     def get_data(self):
         return 1
@@ -46,7 +48,11 @@ class Record:
 
     def check_window_size(self):
         if len(self.data_set) > self.window_size:
-            self.data_set.pop(0)
+            outfile = open(f'results/{self.title}/{self.count}.pickle', 'wb')
+            pickle.dump(self.data_set, outfile)
+            outfile.close()
+            self.data_set = self.data_set[-1:]
+            self.count += 1
 
     def calculate_mov_avg(self, a1):
         _count = len(self.data_set)
@@ -83,13 +89,16 @@ class Memory(Record):
 
 
 class Delay:
-    def __init__(self):
+    def __init__(self, window_size):
         self.data_set = []
         self.title = 'Network Delay'
+        self.window_size = window_size
+        self.count = 0
 
     def add_data(self, data):
         new_avg = self.calculate_mov_avg(data)
         self.data_set.append(new_avg)
+        self.check_window_size()
 
     def calculate_mov_avg(self, a1):
         _count = len(self.data_set)
@@ -100,6 +109,14 @@ class Delay:
         _count += 1
         avg1 = ((_count - 1) * avg1 + a1) / _count  # cumulative average formula μ_n=((n-1) μ_(n-1)  + x_n)/n
         return round(avg1, 4)
+
+    def check_window_size(self):
+        if len(self.data_set) > self.window_size:
+            outfile = open(f'results/delay/{self.count}.pickle', 'wb')
+            pickle.dump(self.data_set, outfile)
+            outfile.close()
+            self.data_set = self.data_set[-1:]
+            self.count += 1
 
     def plot_data(self, ax):
         mv = self.data_set[:]
@@ -128,7 +145,9 @@ class PredictPop:
     @staticmethod
     def get_model(filename):
         # load the model from disk
-        loaded_model = pickle.load(open(filename, 'rb'))
+        file = open(filename, 'rb')
+        loaded_model = pickle.load(file)
+        file.close()
         return loaded_model
 
     @staticmethod
@@ -291,25 +310,32 @@ def save_data(mem, cpu, delay, hit_ratio, no):
     host = get_hostname()
     host_no = int(re.findall('[0-9]+', host)[0])
     data = f"""
-    mem{host_no}_{no} = {mem}
+    memory{host_no}_{no} = {mem}
     cpu{host_no}_{no} = {cpu}
     delay{host_no}_{no} = {delay}
     hit_ratio{host_no}_{no} = {hit_ratio}
     """
     send_email(data)
-    file = open(f'output{host_no}_{no}.py', 'w')
+    file = open(f'results/output{host_no}_{no}.py', 'w')
     file.write(data)
     file.close()
     send_path = '/home/osboxes/results/'
     sp.run(
         ["scp", f'results/output{host_no}_{no}.py', f"osboxes@192.168.200.101:{send_path}"])
+    for res in ['memory', 'cpu', 'delay']:
+        os.system(f'zip results/{res}{host_no}_{no}.zip results/{res}/*')
+        sp.run(
+            ["scp", f'results/{res}{host_no}_{no}.zip', f"osboxes@192.168.200.101:{send_path}"])
+        time.sleep(r.uniform(1, 10))
 
 
 def arrival_distribution():
     # Poisson Distribution
     host = get_hostname()
     host_no = int(re.findall('[0-9]+', host)[0])
-    arrival_dist = pickle.load(open(f'dist/{host_no}.pickle', 'rb'))
+    file = open(f'dist/{host_no}.pickle', 'rb')
+    arrival_dist = pickle.load(file)
+    file.close()
     return (i for i in arrival_dist)
 
 
@@ -384,15 +410,16 @@ def run(no_mec):
     n = 5*8*10
     no_of_requests = (no_reqs // n) * n        # No of requests should be divisible by 4, 8, 12 MECs |  67,200
 
-    cpu_record = CPU(window_size=1000, title='cpu')
-    memory = Memory(window_size=1000, title='memory')
-    network_cost_record = Delay()
+    cpu_record = CPU(window_size=200, title='cpu')
+    memory = Memory(window_size=200, title='memory')
+    network_cost_record = Delay(window_size=200)
 
     d_slice = data_slice(no_mec=no_mec, total_req_no=no_of_requests, initial=request_data.shape[0]-no_of_requests)
-    store = LocalCache(cache_size=60, delay=network_cost_record)
+    store = LocalCache(cache_size=50, delay=network_cost_record)
     # pickle_in = open('dict.pickle','rb')
     # example_dict = pickle.load(pickle_in)
     arrival_dist = arrival_distribution()
+    s = d_slice[1] - d_slice[0]
     for i in range(d_slice[0], d_slice[1]):
         print(f"requesting-> {request_data['movieId'][i]}")
         store.push(request_data['movieId'][i], request_data['timestamp'][i])
@@ -401,6 +428,8 @@ def run(no_mec):
         print(f'cache -> {len(store.cache)}')
         show_graphs()
         time.sleep(arrival_dist.__next__())
+        s -= 1
+        print(f'\nRemaining -> {s} \n')
     print('hit ratio ->', store.hit_ratio())
     save_data(mem=memory.data_set, cpu=cpu_record.data_set, delay=network_cost_record.data_set,
               hit_ratio=store.hit_ratio(), no=no_mec)
