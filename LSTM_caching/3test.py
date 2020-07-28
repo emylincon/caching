@@ -1,6 +1,7 @@
 import pandas as pd
 import time
 import os
+import subprocess as sp
 
 
 def run():
@@ -15,12 +16,17 @@ def run():
     for i in range(length-no_reqs, length):
         print(f"requesting-> {request_data['movieId'][i]}")
         r, t = request_data['movieId'][i], request_data['timestamp'][i]
-        os.system(f'python3 play.py --r={r} --t="{t}"')
-        time.sleep(2)
-        file = open('out.txt', 'r')
-        ans = file.readlines()
-        file.close()
+
+        cmd = [f'python3 play.py --r={r} --t="{t}"']
+        ans = str(sp.check_output(cmd, shell=True), 'utf-8')[0:-1]
+
+        # os.system(f'python3 play.py --r={r} --t="{t}"')
+        # time.sleep(2)
+        # file = open('out.txt', 'r')
+        # ans = file.readlines()
+        # file.close()
         print('prediction ->', ans)
+        #print(float(ans))
         time.sleep(1)
         #print('answer ->', ans)
         print('remaining ->', i)

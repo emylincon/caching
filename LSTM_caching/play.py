@@ -64,7 +64,8 @@ def main():
     args = parser.parse_args()
 
     ans = PredictPop().process_request(args.r, args.t)
-    os.system(f'echo "{ans}" > out.txt')
+    print(ans)
+    #os.system(f'echo "{ans}" > out.txt')
 
 
 if __name__ == '__main__':
