@@ -67,8 +67,9 @@ def run():
 
     for i in range(length-no_reqs, length):
         print(f"requesting-> {request_data['movieId'][i]}")
-        ans = PredictPop().process_request(request_data['movieId'][i], request_data['timestamp'][i])
-        print('answer ->', ans)
+        #ans = PredictPop().process_request(request_data['movieId'][i], request_data['timestamp'][i])
+        print(request_data['movieId'][i], request_data['timestamp'][i])
+        #print('answer ->', ans)
         print('remaining ->', i)
 
 
