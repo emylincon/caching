@@ -64,11 +64,10 @@ def run():
     # no_reqs = int(request_data.shape[0] * 0.3)  # testing data is 30 % => 67,259
     no_reqs = 1000  # testing data is 30 % => 67,259
     length = request_data.shape[0]
-    predictor = PredictPop()
 
     for i in range(length-no_reqs, length):
         print(f"requesting-> {request_data['movieId'][i]}")
-        ans = predictor.process_request(request_data['movieId'][i], request_data['timestamp'][i])
+        ans = PredictPop().process_request(request_data['movieId'][i], request_data['timestamp'][i])
         print('answer ->', ans)
         print('remaining ->', i)
 
