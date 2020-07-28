@@ -25,7 +25,7 @@ def run():
         # file = open('out.txt', 'r')
         # ans = file.readlines()
         # file.close()
-        print('prediction ->', ans)
+        print('prediction|| ->', float(ans))
         #print(float(ans))
         time.sleep(1)
         #print('answer ->', ans)
