@@ -51,9 +51,11 @@ class PredictPop:
                 data = [[i] for i in data]
                 return self.predict_next(model=model, data=data)
             else:
-                print(f'not enough -> {stop}')
+                pass
+                #print(f'not enough -> {stop}')
         else:
-            print(f'not in trained {request}')
+            pass
+            #print(f'not in trained {request}')
         return 0
 
 

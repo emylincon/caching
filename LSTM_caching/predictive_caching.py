@@ -174,17 +174,23 @@ class LocalCache:
         cost = time.perf_counter() - start
         self.delay.add_data(round(cost, 5))
 
+    @staticmethod
+    def get_popularity(request, t_time):
+        cmd = [f'python3 predictor.py --r={request} --t="{t_time}"']
+        ans = str(sp.check_output(cmd, shell=True), 'utf-8')[0:-1]
+        return float(ans)
+
     def push(self, request, t_time):
         if request in self.cache:
             print('hit')
             self.hit += 1
             self.delay.add_data(0)
-            popularity = PredictPop().process_request(request, t_time)
+            popularity = self.get_popularity(request, t_time)
             self.cache[request] = popularity
         else:
             print('miss')
             self.miss += 1
-            popularity = PredictPop().process_request(request, t_time)
+            popularity = self.get_popularity(request, t_time)
             if len(self.cache) >= self.cache_size:
                 min_pop_cache = min(self.cache, key=self.cache.get)
                 if self.cache[min_pop_cache] <= popularity:
@@ -330,9 +336,9 @@ def run(no_mec):
     n = 5*8*10
     no_of_requests = (no_reqs // n) * n        # No of requests should be divisible by 5, 10, 15 MECs |  67,200
 
-    cpu = CPU(window_size=100, title='cpu')
-    memory = Memory(window_size=100, title='memory')
-    network_cost_record = Delay(window_size=100)
+    cpu = CPU(window_size=200, title='cpu')
+    memory = Memory(window_size=200, title='memory')
+    network_cost_record = Delay(window_size=200)
 
     d_slice = data_slice(no_mec=no_mec, total_req_no=no_of_requests, initial=request_data.shape[0]-no_of_requests)
     store = LocalCache(cache_size=50, delay=network_cost_record)
