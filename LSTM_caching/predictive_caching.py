@@ -241,7 +241,7 @@ def save_data(mem, cpu, delay, hit_ratio, no):
     file.close()
     send_path = '/home/osboxes/results/'
     sp.run(
-        ["scp", f'results/output{host_no}_{no}.py', f"osboxes@192.168.200.100:{send_path}"])
+        ["scp", f'results/output{host_no}_{no}.py', f"osboxes@192.168.200.101:{send_path}"])
 
 
 def arrival_distribution():
@@ -289,7 +289,7 @@ class BrokerRequest:
 
 
 def initialization():
-    br = BrokerRequest(user='mec', pw='password', ip='192.168.200.100', sub_topic='control')
+    br = BrokerRequest(user='mec', pw='password', ip='192.168.200.101', sub_topic='control')
     br.broker_loop()
     del br
     print('starting ....')
