@@ -3,7 +3,34 @@ import time
 import os
 import subprocess as sp
 import re
+import smtplib
+from email.message import EmailMessage
 import random as r
+
+
+def send_email(file):
+    EMAIL_ADDRESS = "spicetala@gmail.com"
+    EMAIL_PASSWORD = "dumbaccount123"
+
+    msg = EmailMessage()
+
+    msg['Subject'] = 'Grab dinner this weekend?!'
+
+    msg['From'] = EMAIL_ADDRESS
+
+    msg['To'] = 'suitelabb@gmail.com'
+    msg.set_content('file')
+    with open(file, 'rb') as f:
+        file_data = f.read()
+        # file_type = imghdr.what(f.name)
+        file_name = f.name
+
+    msg.add_attachment(file_data, maintype='application', subtype='octet-stream', filename=file_name)
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        smtp.send_message(msg)
+
 
 def run():
 
@@ -46,8 +73,9 @@ def fix():
     host_no = int(re.findall('[0-9]+', host)[0])
     for res in ['memory', 'cpu', 'delay']:
         os.system(f'zip results/{res}{host_no}_{no}.zip results/{res}/*')
-        sp.run(
-            ["scp", f'results/{res}{host_no}_{no}.zip', f"osboxes@192.168.200.101:{send_path}"])
+        send_email(f'results/{res}{host_no}_{no}.zip')
+        # sp.run(
+        #     ["scp", f'results/{res}{host_no}_{no}.zip', f"osboxes@192.168.200.101:{send_path}"])
         #time.sleep(r.uniform(1, 10))
 
 
