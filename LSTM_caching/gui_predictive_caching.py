@@ -127,8 +127,8 @@ class Delay:
         ptx = d[0:len(d):int((len(d) / 7)) + 1]
         if ptx[-1] != d[-1]:
             ptx.append(d[-1])
-
-        ax.plot(ptx[:6], pt[:6], linestyle=(0, (3, 1, 1, 1, 1, 1)),
+        a = min([len(ptx), len(pt)])
+        ax.plot(ptx[:a], pt[:a], linestyle=(0, (3, 1, 1, 1, 1, 1)),
                 linewidth=2, **{'color': 'b', 'marker': 's'})
         ax.set_ylabel(self.title)
         ax.set_xlabel('Time (seconds)')
