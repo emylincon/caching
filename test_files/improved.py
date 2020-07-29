@@ -66,6 +66,7 @@ class Node:
         """:arg
         file size can be calculated by the number of characters in the file.
         Each character represents 1 byte
+        or os.stat('path/filename').st_size
         """
         return 2 + (file_size/536)
 
@@ -315,7 +316,7 @@ class LFRU:
         self.length = 0
         self.hit = 0
         self.miss = 0
-        self.avg_max = 4
+        self.avg_max = 110
 
     @property
     def average_count(self):
@@ -386,8 +387,8 @@ class LFRU:
             node = self.history.delete(node)
             node.next, node.prev = None, None
             victim = self.chain[self.sorted_freq.heap[0]].tail
-            print(self.sorted_freq.heap)
-            print('comparing: ', node.data, victim.data, '->', self.data_display())
+            # print(self.sorted_freq.heap)
+            # print('comparing: ', node.data, victim.data, '->', self.data_display())
             if node.last_access > victim.last_access:
                 #print('before eviction ++++',  self.data_display() )
                 self.evict(victim)
