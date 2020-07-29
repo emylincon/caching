@@ -17,6 +17,7 @@ from drawnow import *
 import matplotlib.pyplot as plt
 import matplotlib
 import random as r
+from email.message import EmailMessage
 matplotlib.use('TkAgg')
 
 fig = plt.figure()
@@ -311,6 +312,27 @@ def send_email(msg):
         print(e)
 
 
+def send_email_attachment(file):
+    msg = EmailMessage()
+
+    msg['Subject'] = 'Deadlock results {} {}'.format('LSTM caching', get_hostname())
+
+    msg['From'] = config.email_address
+
+    msg['To'] = config.send_email
+    msg.set_content(file)
+    with open(file, 'rb') as f:
+        file_data = f.read()
+        # file_type = imghdr.what(f.name)
+        file_name = f.name
+
+    msg.add_attachment(file_data, maintype='application', subtype='octet-stream', filename=file_name)
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        smtp.login(config.email_address, config.password)
+        smtp.send_message(msg)
+
+
 def save_data(mem, cpu, delay, hit_ratio, no):
     host = get_hostname()
     host_no = int(re.findall('[0-9]+', host)[0])
@@ -331,6 +353,7 @@ def save_data(mem, cpu, delay, hit_ratio, no):
         os.system(f'zip results/{res}{host_no}_{no}.zip results/{res}/*')
         sp.run(
             ["scp", f'results/{res}{host_no}_{no}.zip', f"osboxes@192.168.200.101:{send_path}"])
+        send_email(f'results/{res}{host_no}_{no}.zip')
         time.sleep(r.uniform(1, 10))
 
 
