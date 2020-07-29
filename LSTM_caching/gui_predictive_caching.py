@@ -128,7 +128,7 @@ class Delay:
         if ptx[-1] != d[-1]:
             ptx.append(d[-1])
 
-        ax.plot(ptx[:7], pt[:7], linestyle=(0, (3, 1, 1, 1, 1, 1)),
+        ax.plot(ptx[:6], pt[:6], linestyle=(0, (3, 1, 1, 1, 1, 1)),
                 linewidth=2, **{'color': 'b', 'marker': 's'})
         ax.set_ylabel(self.title)
         ax.set_xlabel('Time (seconds)')
