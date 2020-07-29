@@ -249,7 +249,7 @@ def send_email(msg):
         server = smtplib.SMTP_SSL('smtp.gmail.com')
         server.ehlo()
         server.login(config.email_address, config.password)
-        subject = 'Deadlock results {} {}'.format('LSTM caching', get_hostname())
+        subject = 'Caching results {} {}'.format('LSTM caching', get_hostname())
         # msg = 'Attendance done for {}'.format(_timer)
         _message = 'Subject: {}\n\n{}\n\n SENT BY RIHANNA \n\n'.format(subject, msg)
         server.sendmail(config.email_address, config.send_email, _message)
@@ -262,7 +262,7 @@ def send_email(msg):
 def send_email_attachment(file):
     msg = EmailMessage()
 
-    msg['Subject'] = 'Deadlock results {} {}'.format('LSTM caching', get_hostname())
+    msg['Subject'] = 'Caching results {} {}'.format('LSTM caching', get_hostname())
 
     msg['From'] = config.email_address
 
