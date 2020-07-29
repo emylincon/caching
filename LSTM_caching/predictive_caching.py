@@ -332,7 +332,7 @@ def run(no_mec):
     initialization()
     request_data = pd.read_csv(f'../request_data.csv')
     # no_reqs = int(request_data.shape[0] * 0.3)  # testing data is 30 % => 67,259
-    no_reqs = 50000  # testing data is 30 % => 67,259
+    no_reqs = 20000  # testing data is 30 % => 67,259
     n = 5*8*10
     no_of_requests = (no_reqs // n) * n        # No of requests should be divisible by 5, 10, 15 MECs |  67,200
 
