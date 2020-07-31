@@ -682,6 +682,7 @@ class LocalCache:
             display_event(kind='notify', event='cache miss', origin='push from LocalCache')
             mec = self.check_mec(new_node)  # (mec, cache_decision[0,1])
             if mec:
+                self.mec_hit += 1
                 decision[0] = mec[1]
                 link = self.mec_cache_link(content_hash=new_node.content_id, mec=mec[0])
                 event = 'cached from mec'
@@ -709,6 +710,8 @@ class LocalCache:
                     new_node.retrieval_cost, new_node.content_id = self.get_file(request_link=link, temp=1)
                     display_event(kind='notify', event=event, origin='push from LocalCache')
             else:
+                if precache == 0:
+                    self.miss += 1
                 if self.length >= self.cache_size:
                     decision = self.maintain_cache_size(new_node)
 
@@ -735,11 +738,10 @@ class LocalCache:
                     if decision[2]:
                         messenger.publish('cache/replace',
                                           pickle.dumps([ip_address(), decision[2].content_id, new_node.content_id]))
-                if self.length < self.cache_size:
+                if self.length < self.cache_size:  # decision is right | send add cache only when length > cache_size
                     messenger.publish('cache/add', pickle.dumps([new_node.content_id, ip_address()]))
-            if precache == 0:
-                self.miss += 1
-            else:
+
+            if precache == 1:
                 self.pre_cached += 1
                 self.rule_matches['pre_cache_check'] += 1
 
@@ -1172,8 +1174,8 @@ def run(no_mec):
 
     os.system('clear')
     print('Waiting for Start command from Control...')
-    collaborative_cache = CollaborativeCache(no_mec=no_mec)
     initialization()
+    collaborative_cache = CollaborativeCache(no_mec=no_mec)
     request_data = pd.read_csv(f'request_data.csv')
     # no_reqs = int(request_data.shape[0] * 0.3)  # testing data is 30 % => 67,259
     no_reqs = 20000  # testing data is 30 % => 67,259
