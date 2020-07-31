@@ -851,8 +851,17 @@ class LocalCache:
                 display_event(kind=f'Association Rules | Time: {round(t2-t1, 5)}', event=rules,
                               origin='get_association_rules')
 
+    def total_hit_ratio(self):
+        return round((((self.hit + self.mec_hit) / (self.hit + self.mec_hit + self.miss)) * 100), 2)
+
+    def mec_hit_ratio(self):
+        return round((self.mec_hit / (self.hit + self.mec_hit)) * 100, 2)
+
     def hit_ratio(self):
-        return round((self.hit / (self.hit + self.miss)) * 100, 2)
+        return round((self.hit / (self.hit + self.mec_hit + self.miss)) * 100, 2)
+
+    def right_predictions(self):
+        return round((self.rule_matches['right'] / (self.rule_matches['right'] + self.rule_matches['wrong'])) * 100)
 
     def data_display(self):
         return {i: self.chain[i].list() for i in self.chain}
@@ -860,14 +869,25 @@ class LocalCache:
     def details_display(self):
         return {i: self.chain[i].details() for i in self.chain}
 
+    def outcome_details(self):
+        text = {'right_match': self.rule_matches['right'],
+                'Wrong_match': self.rule_matches['wrong'],
+                'right_pre_cache': self.rule_matches['right_pre_cache'],
+                'wrong_pre_cache': self.rule_matches['wrong_pre_cache'],
+                'total_hit_ratio': self.total_hit_ratio(),
+                'mec_hit_ratio': self.mec_hit_ratio(),
+                'hit_ratio': self.hit_ratio()
+                }
+
+        return text
+
     def experiment_details(self):
         print('Hit ratio: ', round((((self.hit + self.mec_hit) / (self.hit + self.mec_hit + self.miss)) * 100)), '%')
         print('mec hit ratio: ', round((self.mec_hit / (self.hit + self.mec_hit)) * 100), '%')
         print('Pre-cached: ', self.pre_cached)
         pred = round((self.rule_matches['right'] / (self.rule_matches['right'] + self.rule_matches['wrong'])) * 100)
         print('Right Predictions: ', pred, '%')
-        print(f"Generated {self.rule_matches['rule_count']} rules | "
-              f"{len(self.rule_matches['rules'])} are unique")
+        print(f"Generated {self.rule_matches['rule_count']} rules ")
         print(f"No of association matches: ", self.rule_matches['right'] + self.rule_matches['wrong'])
         print(f"Right: {self.rule_matches['right']}   | Wrong: {self.rule_matches['wrong']}")
         print(f"right Pre_cache: {self.rule_matches['right_pre_cache']} |"
@@ -1083,15 +1103,18 @@ def send_email_attachment(file):
         smtp.send_message(msg)
 
 
-def save_data(mem, cpu, delay, hit_ratio, no):
+def save_data(mem, cpu, delay, no, cache_details):
     host = get_hostname()
     host_no = int(re.findall('[0-9]+', host)[0])
     data = f"""
     memory{host_no}_{no} = {mem}
     cpu{host_no}_{no} = {cpu}
     delay{host_no}_{no} = {delay}
-    hit_ratio{host_no}_{no} = {hit_ratio}
     """
+    detail = '\n'
+    for det in cache_details:
+        detail += f'{det}{host_no}_{no} = {cache_details[det]}\n'
+    data += detail
     send_email(data)
     file = open(f'results/output{host_no}_{no}.py', 'w')
     file.write(data)
@@ -1103,7 +1126,7 @@ def save_data(mem, cpu, delay, hit_ratio, no):
         os.system(f'zip results/{res}{host_no}_{no}.zip results/{res}/*')
         sp.run(
             ["scp", f'results/{res}{host_no}_{no}.zip', f"osboxes@192.168.200.101:{send_path}"])
-        send_email(f'results/{res}{host_no}_{no}.zip')
+        send_email_attachment(f'results/{res}{host_no}_{no}.zip')
         time.sleep(r.uniform(1, 10))
 
 
@@ -1202,8 +1225,8 @@ def run(no_mec):
         s -= 1
         print(f'\nRemaining -> {s} \n')
     print('hit ratio ->', store.hit_ratio())
-    save_data(mem=memory_record.data_set, cpu=cpu_record.data_set, delay=network_cost_record.data_set,
-              hit_ratio=store.hit_ratio(), no=no_mec)
+    save_data(mem=memory_record.data_set, cpu=cpu_record.data_set, delay=network_cost_record.data_set, no=no_mec,
+              cache_details=store.outcome_details())
     store.experiment_details()
     messenger.run = 0
     print('experiment concluded!')
