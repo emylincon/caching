@@ -1109,14 +1109,14 @@ def arrival_distribution():
     # Poisson Distribution
     host = get_hostname()
     host_no = int(re.findall('[0-9]+', host)[0])
-    file = open(f'dist/{host_no}.pickle', 'rb')
+    file = open(f'LSTM_caching/dist/{host_no}.pickle', 'rb')
     arrival_dist = pickle.load(file)
     file.close()
     return (i for i in arrival_dist)
 
 
-memory_record = Memory(window_size=200, title='Memory')
-cpu_record = CPU(window_size=200, title='CPU')
+memory_record = Memory(window_size=200, title='memory')
+cpu_record = CPU(window_size=200, title='cpu')
 
 broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'cache/#'}
 messenger = BrokerCom(**broker_dict)
@@ -1174,7 +1174,7 @@ def run(no_mec):
     print('Waiting for Start command from Control...')
     collaborative_cache = CollaborativeCache(no_mec=no_mec)
     initialization()
-    request_data = pd.read_csv(f'../request_data.csv')
+    request_data = pd.read_csv(f'request_data.csv')
     # no_reqs = int(request_data.shape[0] * 0.3)  # testing data is 30 % => 67,259
     no_reqs = 20000  # testing data is 30 % => 67,259
     n = 5 * 8 * 10
