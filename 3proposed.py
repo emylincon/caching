@@ -543,8 +543,8 @@ class LocalCache:
     def mec_cache_link(content_hash, mec):
         return f"ftp://{mec}/cache/{content_hash}.html"
 
-    def rename_to_content_hash(self, web_link, temp=0):
-        file_ = open(f'{self.cache_dir}/temp', 'rb')
+    def rename_to_content_hash(self, web_link, filename, temp=0):
+        file_ = open(filename, 'rb')
         content_hash = hashlib.sha256(file_.read()).hexdigest()
         file_.close()
         self.content_name_resolution.add_to_server(content_hash=content_hash, url=web_link,
@@ -557,17 +557,19 @@ class LocalCache:
         name = request_link.split('/')[-1]
         start = time.perf_counter()
         if temp == 1:
+            filename = f'temp/{name}'
             try:
-                wget.download(request_link, f'temp/{name}')
+                wget.download(request_link, filename)
             except Exception as e:
-                wget.download(request_link, f'temp/{name}')
+                wget.download(request_link, filename)
         else:
+            filename = f'{self.cache_dir}/temp'
             try:
-                wget.download(request_link, f'{self.cache_dir}/temp')
+                wget.download(request_link, filename)
             except Exception as e:
-                wget.download(request_link, f'{self.cache_dir}/temp')
+                wget.download(request_link, filename)
         cost = round(time.perf_counter() - start, 5)
-        content_hash = self.rename_to_content_hash(web_link=request_link, temp=temp)
+        content_hash = self.rename_to_content_hash(web_link=request_link, filename=filename, temp=temp)
         self.delay.add_data(cost)
 
         return cost, content_hash
