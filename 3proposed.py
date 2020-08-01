@@ -754,7 +754,7 @@ class LocalCache:
         self.maintain_count()
 
     def check_mec(self, new_node):
-        if new_node.id in self.history:
+        if new_node.id in self.history.table:
             return collaborative_cache.find_cache(new_node.content_id)
         else:
             content_id = self.content_name_resolution.get_content_hash(location_hash=new_node.id)
