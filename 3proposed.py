@@ -1140,7 +1140,7 @@ def arrival_distribution():
     return (i for i in arrival_dist)
 
 
-result_server_ip = '192.168.122.106'
+result_server_ip = '192.168.122.150'
 memory_record = Memory(window_size=200, title='memory')
 cpu_record = CPU(window_size=200, title='cpu')
 
