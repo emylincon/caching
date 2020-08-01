@@ -23,7 +23,8 @@ anonymous_enable=YES
 ```bash
 /etc/init.d/vsftpd restart
 ```
-[Tutorial link](https://www.youtube.com/watch?v=GijFysBqaFs)
+* [Tutorial link](https://www.youtube.com/watch?v=GijFysBqaFs) to configure in ubuntu
+* [Tutorial link](https://www.hiroom2.com/2018/09/01/alpinelinux-3-8-vsftpd-en/) to configure in alpine
 
 ###### you can use the config file in this dir (vsftpd)
 ```bash
