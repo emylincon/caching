@@ -1144,11 +1144,6 @@ result_server_ip = '192.168.122.106'
 memory_record = Memory(window_size=200, title='memory')
 cpu_record = CPU(window_size=200, title='cpu')
 
-broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'cache/#', 'ip': broker_ip}
-messenger = BrokerCom(**broker_dict)
-h1 = Thread(target=messenger.broker_loop)
-h1.start()
-
 
 class BrokerRequest:
     def __init__(self, user, pw, ip, sub_topic):
@@ -1195,10 +1190,16 @@ def initialization():
 
 def run(no_mec):
     global collaborative_cache
+    global messenger
 
     os.system('clear')
     print('Waiting for Start command from Control...')
     initialization()
+    broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'cache/#', 'ip': broker_ip}
+    messenger = BrokerCom(**broker_dict)
+    h1 = Thread(target=messenger.broker_loop)
+    h1.start()
+
     collaborative_cache = CollaborativeCache(no_mec=no_mec)
     request_data = pd.read_csv(f'request_data.csv')
     # no_reqs = int(request_data.shape[0] * 0.3)  # testing data is 30 % => 67,259
