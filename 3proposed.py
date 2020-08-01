@@ -692,17 +692,20 @@ class LocalCache:
                 if decision[0] == 1 and self.length >= self.cache_size:
                     decision = self.maintain_cache_size(new_node)
                     new_node = new_node if decision[1] is None else decision[1]
-                    if (precache == 0) or (new_node.count == 0):
+                    if decision[0] == 1:   # do if only cache is to be stored! maintain min freq
                         if new_node.count + 1 < self.min_freq:
                             if self.min_freq - self.max_freq > new_node.count + 1:
                                 new_node.count = self.min_freq - self.max_freq
                             self.min_freq = new_node.count + 1
+                        self.table[new_node.id] = new_node
+                        self.length += 1
+                    if (precache == 0) or (new_node.count == 0):
                         new_node.count += 1
-                    event = f'incrementing new ->{new_node.count} | {self.chain.keys()}'
+                    event = f'incrementing new ->{new_node.count} | {self.chain.keys()}'   # incremented always for miss
                     display_event(kind='notify', event=event, origin='push from LocalCache')
-                    self.table[new_node.id] = new_node
-                    self.length += 1
-                    new_node.retrieval_cost, new_node.content_id = self.get_file(request_link=link, temp=mec[1])
+                    # decision 1 => cache
+                    # temp 1 => dont cache
+                    new_node.retrieval_cost, new_node.content_id = self.get_file(request_link=link, temp=decision[0]^1)
                 else:
                     if (precache == 0) or (new_node.count == 0):
                         new_node.count += 1
@@ -884,8 +887,9 @@ class LocalCache:
         return text
 
     def experiment_details(self):
-        print('Hit ratio: ', round((((self.hit + self.mec_hit) / (self.hit + self.mec_hit + self.miss)) * 100)), '%')
-        print('mec hit ratio: ', round((self.mec_hit / (self.hit + self.mec_hit)) * 100), '%')
+        print('Total Hit ratio: ', self.total_hit_ratio(), '%')
+        print('mec hit ratio: ', self.mec_hit_ratio(), '%')
+        print('hit ratio: ', self.hit_ratio(), '%')
         print('Pre-cached: ', self.pre_cached)
         pred = round((self.rule_matches['right'] / (self.rule_matches['right'] + self.rule_matches['wrong'])) * 100)
         print('Right Predictions: ', pred, '%')
@@ -1040,13 +1044,14 @@ class BrokerCom:
 
 
 def display_event(kind, event, origin):
-    print('\n' + '*' * 100)
+    tab = 50
+    print('\n' + '*' * tab)
     print(f'Kind : {kind}')
-    print('-' * 100)
+    print('-' * tab)
     print(f'Kind : {origin}')
-    print('-' * 100)
+    print('-' * tab)
     print(event)
-    print('\n' + '*' * 100 + '\n')
+    print('\n' + '*' * tab + '\n')
 
 
 def ip_address():
@@ -1142,7 +1147,7 @@ def arrival_distribution():
     return (i for i in arrival_dist)
 
 
-result_server_ip = '192.168.122.150'
+result_server_ip = '192.168.122.249'
 memory_record = Memory(window_size=200, title='memory')
 cpu_record = CPU(window_size=200, title='cpu')
 
@@ -1210,10 +1215,10 @@ def run(no_mec):
     no_of_requests = (no_reqs // n) * n  # No of requests should be divisible by 5, 10, 15 MECs |  67,200
 
     network_cost_record = Delay(window_size=200)
-    content_name_server = '192.168.122.150'
+    content_name_server = '192.168.122.249'
     # (self, cache_size, max_freq, avg_max, window_size, content_name_server, delay)
     d_slice = data_slice(no_mec=no_mec, total_req_no=no_of_requests, initial=request_data.shape[0] - no_of_requests)
-    store = LocalCache(cache_size=50, max_freq=20, avg_max=100, window_size=50 * 8,
+    store = LocalCache(cache_size=50, max_freq=20, avg_max=100, window_size=15,
                        content_name_server=content_name_server,
                        delay=network_cost_record)
     # pickle_in = open('dict.pickle','rb')
@@ -1228,10 +1233,10 @@ def run(no_mec):
         time.sleep(arrival_dist.__next__())
         s -= 1
         print(f'\nRemaining -> {s} \n')
-    print('hit ratio ->', store.hit_ratio())
+    store.experiment_details()
     save_data(mem=memory_record.data_set, cpu=cpu_record.data_set, delay=network_cost_record.data_set, no=no_mec,
               cache_details=store.outcome_details())
-    store.experiment_details()
+
     messenger.run = 0
     print('experiment concluded!')
 
