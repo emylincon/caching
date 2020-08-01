@@ -620,12 +620,12 @@ class LocalCache:
 
     def increment_count_decision(self, node):
         diff = 1
-        event = f'loop list -> {list(range(node.count-1, 0, -1))}'
-        display_event(kind='notify', event=event, origin='increment_count_decision')
+        # event = f'loop list -> {list(range(node.count-1, 0, -1))}'
+        # display_event(kind='notify', event=event, origin='increment_count_decision')
         for tf in range(node.count - 1, 0, -1):
             try:
                 q = self.chain[tf]
-                print('in->', tf)
+                print('in->', tf, q)
                 break
             except KeyError:
                 diff += 1
