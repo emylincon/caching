@@ -1121,11 +1121,11 @@ def save_data(mem, cpu, delay, no, cache_details):
     file.close()
     send_path = '/home/osboxes/results/'
     sp.run(
-        ["scp", f'results/output{host_no}_{no}.py', f"osboxes@192.168.200.101:{send_path}"])
+        ["scp", f'results/output{host_no}_{no}.py', f"osboxes@{result_server_ip}:{send_path}"])
     for res in ['memory', 'cpu', 'delay']:
         os.system(f'zip results/{res}{host_no}_{no}.zip results/{res}/*')
         sp.run(
-            ["scp", f'results/{res}{host_no}_{no}.zip', f"osboxes@192.168.200.101:{send_path}"])
+            ["scp", f'results/{res}{host_no}_{no}.zip', f"osboxes@{result_server_ip}:{send_path}"])
         send_email_attachment(f'results/{res}{host_no}_{no}.zip')
         time.sleep(r.uniform(1, 10))
 
@@ -1140,10 +1140,11 @@ def arrival_distribution():
     return (i for i in arrival_dist)
 
 
+result_server_ip = '192.168.122.106'
 memory_record = Memory(window_size=200, title='memory')
 cpu_record = CPU(window_size=200, title='cpu')
 
-broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'cache/#', 'ip': 'localhost'}
+broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'cache/#', 'ip': broker_ip}
 messenger = BrokerCom(**broker_dict)
 h1 = Thread(target=messenger.broker_loop)
 h1.start()
@@ -1186,7 +1187,7 @@ class BrokerRequest:
 
 
 def initialization():
-    br = BrokerRequest(user='mec', pw='password', ip='localhost', sub_topic='control')
+    br = BrokerRequest(user='mec', pw='password', ip=broker_ip, sub_topic='control')
     br.broker_loop()
     del br
     print('starting ....')
@@ -1233,10 +1234,13 @@ def run(no_mec):
 
 
 def main():
+    global broker_ip
+
     parser = argparse.ArgumentParser()  # --n=5
     parser.add_argument('--n', type=int, default=1, help='Number of MEC nodes')
+    parser.add_argument('--ip', type=str, default='localhost', help='broker ip address')
     args = parser.parse_args()
-
+    broker_ip = args.ip
     run(no_mec=args.n)
 
 
