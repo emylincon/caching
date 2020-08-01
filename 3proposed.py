@@ -558,14 +558,14 @@ class LocalCache:
         start = time.perf_counter()
         if temp == 1:
             try:
-                wget.download(self.web_page(request_link), f'temp/{name}')
+                wget.download(request_link, f'temp/{name}')
             except Exception as e:
-                wget.download(self.web_page(request_link), f'temp/{name}')
+                wget.download(request_link, f'temp/{name}')
         else:
             try:
-                wget.download(self.web_page(request_link), f'{self.cache_dir}/temp')
+                wget.download(request_link, f'{self.cache_dir}/temp')
             except Exception as e:
-                wget.download(self.web_page(request_link), f'{self.cache_dir}/temp')
+                wget.download(request_link, f'{self.cache_dir}/temp')
         cost = round(time.perf_counter() - start, 5)
         content_hash = self.rename_to_content_hash(web_link=request_link, temp=temp)
         self.delay.add_data(cost)
