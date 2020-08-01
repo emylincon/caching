@@ -1143,7 +1143,7 @@ def arrival_distribution():
 memory_record = Memory(window_size=200, title='memory')
 cpu_record = CPU(window_size=200, title='cpu')
 
-broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'cache/#'}
+broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'cache/#', 'ip': 'localhost'}
 messenger = BrokerCom(**broker_dict)
 h1 = Thread(target=messenger.broker_loop)
 h1.start()
@@ -1186,7 +1186,7 @@ class BrokerRequest:
 
 
 def initialization():
-    br = BrokerRequest(user='mec', pw='password', ip='192.168.200.101', sub_topic='control')
+    br = BrokerRequest(user='mec', pw='password', ip='localhost', sub_topic='control')
     br.broker_loop()
     del br
     print('starting ....')
