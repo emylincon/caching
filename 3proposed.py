@@ -1245,7 +1245,7 @@ def run(no_mec):
     content_name_server = '192.168.122.195'
     # (self, cache_size, max_freq, avg_max, window_size, content_name_server, delay)
     d_slice = data_slice(no_mec=no_mec, total_req_no=no_of_requests, initial=request_data.shape[0] - no_of_requests)
-    store = LocalCache(cache_size=50, max_freq=20, avg_max=100, window_size=15,
+    store = LocalCache(cache_size=50, max_freq=15, avg_max=20, window_size=15,
                        content_name_server=content_name_server,
                        delay=network_cost_record)
     # pickle_in = open('dict.pickle','rb')
