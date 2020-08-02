@@ -499,6 +499,43 @@ class NameResolutionServer:
         return self.get_json_data(endpoint=f'read/hash/{location_hash}')['hash']
 
 
+class Matches:
+    def __init__(self, size):
+        self.size = size
+        self.matches = []  # [{match1: [0,0], match2: 1, ...}, {}]   0 means not precache, 1 means precache
+        self.right = 0
+        self.wrong = 0
+        self.right_cache = 0
+        self.wrong_cache = 0
+
+    @property
+    def total(self):
+        return self.right + self.wrong
+
+    def contains(self, item):
+        for match_dict in self.matches:
+            if item in match_dict:
+                self.right += 1
+                match_dict[item][1] = 1  # item has been used
+                if match_dict[item][0] == 1:
+                    self.right_cache += 1
+
+    def push(self, match):
+        if len(self.matches) >= self.size:
+            self.check_wrong(self.matches.pop(0))
+        self.matches.append(match)
+
+    def check_wrong(self, match):
+        for key in match:
+            if match[key][1] == 0:
+                self.wrong += 1
+                if match[key][0] == 1:
+                    self.wrong_cache += 1
+
+    def __len__(self):
+        return len(self.matches)
+
+
 class LocalCache:
 
     def __init__(self, cache_size, max_freq, avg_max, window_size, content_name_server, delay):
@@ -523,10 +560,9 @@ class LocalCache:
         self.pre_cached = 0
         self.no_rules = 6
         self.rules = RuleStore(ant_max=4, max_length=20)
+        self.matches = Matches(5)
         self.content_name_resolution = NameResolutionServer(content_name_server=content_name_server)
-        self.rule_matches = {'match': [], 'right': 0, 'wrong': 0, 'window_count': 0,
-                             'window_size': int(self.window_size / 2), 'rule_count': 0, 'pre_cache_check': 0,
-                             'right_pre_cache': 0, 'wrong_pre_cache': 0}
+        self.rule_matches = {'window_count': 0, 'window_size': int(self.window_size / 2), 'rule_count': 0}
 
     @staticmethod
     def web_page(request):
@@ -574,18 +610,7 @@ class LocalCache:
         return cost, content_hash
 
     def association_match_count(self, req):
-        if len(self.rule_matches['match']) != 0:
-            if req in self.rule_matches['match']:
-                self.rule_matches['right'] += 1
-                if self.rule_matches['pre_cache_check'] != 0:
-                    self.rule_matches['right_pre_cache'] += 1
-                    self.rule_matches['pre_cache_check'] = 0
-            else:
-                self.rule_matches['wrong'] += 1
-                if self.rule_matches['pre_cache_check'] != 0:
-                    self.rule_matches['wrong_pre_cache'] += 1
-                    self.rule_matches['pre_cache_check'] = 0
-            self.rule_matches['match'] = []
+        self.matches.contains(req)
 
     def add_req_to_list(self, cache):
         self.window_check()
@@ -766,10 +791,7 @@ class LocalCache:
                 elif self.length < self.cache_size:  # decision is right | send add cache only when length > cache_size
                     messenger.publish('cache/add', pickle.dumps([new_node.content_id, ip_address()]))
 
-            if precache == 1:
-                self.pre_cached += 1
-                self.rule_matches['pre_cache_check'] += 1
-            else:
+            if precache == 0:
                 self.delay.add_data(new_node.retrieval_cost)
 
         if decision[0] == 1:
@@ -779,6 +801,8 @@ class LocalCache:
                 self.chain[new_node.count] = LRUChain()
                 self.chain[new_node.count].push(new_node)
         self.maintain_count()
+        if precache == 1:
+            return decision[0]
 
     def check_mec(self, new_node):
         if new_node.id in self.history.table:
@@ -850,18 +874,21 @@ class LocalCache:
 
     def apply_association(self):
         match = 0
+        match_dict = {}
         for i in range(1, self.rules.ant_max + 1):
             try:
                 cons = self.rules.rules[i][tuple(self.req[-i:])]
-                self.rule_matches['match'] += list(cons)
+                # [{match1: [0,0], match2: 1, ...}, {}]
                 display_event(kind='notify', event=f'association match {cons}', origin='apply_association')
                 for page in cons:
-                    self.push(page, precache=1)
+                    match_dict[page] = [self.push(page, precache=1), 0]
                     match += 1
             except KeyError:
                 pass
         if match == 0:
             display_event(kind='notify', event=f'No association Match', origin='apply_association')
+        else:
+            self.matches.push(match_dict)
 
     def get_association_rules(self):
         if len(self.req) >= self.window_size:
@@ -888,7 +915,7 @@ class LocalCache:
         return round((self.hit / (self.hit + self.mec_hit + self.miss)) * 100, 2)
 
     def right_predictions(self):
-        return round((self.rule_matches['right'] / (self.rule_matches['right'] + self.rule_matches['wrong'])) * 100)
+        return round((self.matches.right / (self.matches.right + self.matches.wrong)) * 100)
 
     def data_display(self):
         return {i: self.chain[i].list() for i in self.chain}
@@ -897,10 +924,10 @@ class LocalCache:
         return {i: self.chain[i].details() for i in self.chain}
 
     def outcome_details(self):
-        text = {'right_match': self.rule_matches['right'],
-                'Wrong_match': self.rule_matches['wrong'],
-                'right_pre_cache': self.rule_matches['right_pre_cache'],
-                'wrong_pre_cache': self.rule_matches['wrong_pre_cache'],
+        text = {'right_match': self.matches.right,
+                'Wrong_match': self.matches.wrong,
+                'right_pre_cache': self.matches.right_cache,
+                'wrong_pre_cache': self.matches.wrong_cache,
                 'total_hit_ratio': self.total_hit_ratio(),
                 'mec_hit_ratio': self.mec_hit_ratio(),
                 'hit_ratio': self.hit_ratio()
@@ -913,17 +940,17 @@ class LocalCache:
         print('mec hit ratio: ', self.mec_hit_ratio(), '%')
         print('hit ratio: ', self.hit_ratio(), '%')
         print('Pre-cached: ', self.pre_cached)
-        total_matches = (self.rule_matches['right'] + self.rule_matches['wrong'])
+        total_matches = (self.matches.right + self.matches.wrong)
         if total_matches != 0:
-            pred = round((self.rule_matches['right'] / total_matches) * 100)
+            pred = round((self.matches.right / total_matches) * 100)
         else:
             pred = 0
         print('Right Predictions: ', pred, '%')
         print(f"Generated {self.rule_matches['rule_count']} rules ")
-        print(f"No of association matches: ", self.rule_matches['right'] + self.rule_matches['wrong'])
-        print(f"Right: {self.rule_matches['right']}   | Wrong: {self.rule_matches['wrong']}")
-        print(f"right Pre_cache: {self.rule_matches['right_pre_cache']} |"
-              f" wrong pre_cache: {self.rule_matches['wrong_pre_cache']}")
+        print(f"No of association matches: ", self.matches.total)
+        print(f"Right: {self.matches.right}   | Wrong: {self.matches.wrong}")
+        print(f"right Pre_cache: {self.matches.right_cache} |"
+              f" wrong pre_cache: {self.matches.wrong_cache}")
 
 
 class RuleStore:
