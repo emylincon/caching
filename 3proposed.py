@@ -914,7 +914,11 @@ class LocalCache:
         print('mec hit ratio: ', self.mec_hit_ratio(), '%')
         print('hit ratio: ', self.hit_ratio(), '%')
         print('Pre-cached: ', self.pre_cached)
-        pred = round((self.rule_matches['right'] / (self.rule_matches['right'] + self.rule_matches['wrong'])) * 100)
+        total_matches = (self.rule_matches['right'] + self.rule_matches['wrong'])
+        if total_matches != 0:
+            pred = round((self.rule_matches['right'] / total_matches) * 100)
+        else:
+            pred = 0
         print('Right Predictions: ', pred, '%')
         print(f"Generated {self.rule_matches['rule_count']} rules ")
         print(f"No of association matches: ", self.rule_matches['right'] + self.rule_matches['wrong'])
