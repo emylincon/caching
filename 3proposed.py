@@ -1013,7 +1013,7 @@ class AssociateCache:
         else:
             event = f'generated rules less than rule number | {len(rul_sort)} rules'
             display_event(kind='Notify', event=event, origin='ApAssociate gen_rules')
-            rule_dict = [[list(rul_sort.values[i, 0]), list(rul_sort.values[i, 1])] for i in range(len(rul_sort))]
+            rule_dict = [(tuple(rul_sort.values[i, 0]), tuple(rul_sort.values[i, 1])) for i in range(len(rul_sort))]
         return rule_dict
 
 
