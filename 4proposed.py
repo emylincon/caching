@@ -1200,7 +1200,7 @@ def arrival_distribution():
     return (i for i in arrival_dist)
 
 
-result_server_ip = '192.168.122.195'
+result_server_ip = '192.168.205.132'
 memory_record = Memory(window_size=200, title='memory')
 cpu_record = CPU(window_size=200, title='cpu')
 
@@ -1268,10 +1268,10 @@ def run(no_mec):
     no_of_requests = (no_reqs // n) * n  # No of requests should be divisible by 5, 10, 15 MECs |  67,200
 
     network_cost_record = Delay(window_size=200)
-    content_name_server = '192.168.122.195'
+    content_name_server = '192.168.205.130'
     # (self, cache_size, max_freq, avg_max, window_size, content_name_server, delay)
     d_slice = data_slice(no_mec=no_mec, total_req_no=no_of_requests, initial=request_data.shape[0] - no_of_requests)
-    store = LocalCache(cache_size=50, max_freq=15, avg_max=20, window_size=15,
+    store = LocalCache(cache_size=50, max_freq=15, avg_max=100, window_size=20,
                        content_name_server=content_name_server,
                        delay=network_cost_record)
     # pickle_in = open('dict.pickle','rb')
