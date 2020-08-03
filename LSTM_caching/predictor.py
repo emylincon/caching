@@ -48,8 +48,10 @@ def resource_record():
 
     else:
         cfile = sorted(cpu_list)[-1]
-        loaded_cpu = load_file(f'{cpu_dir}/{cfile}').append(avg_cpu)
-        loaded_mem = load_file(f'{mem_dir}/{cfile}').append(avg_cpu)
+        loaded_cpu = load_file(f'{cpu_dir}/{cfile}')
+        loaded_mem = load_file(f'{mem_dir}/{cfile}')
+        loaded_cpu.append(avg_cpu)
+        loaded_mem.append(avg_mem)
         if len(loaded_cpu) >= max_length:
             fname = str(int(cfile.split('.')[0]) + 1).zfill(2) + '.pickle'
             create_file(f'{cpu_dir}/{fname}')
