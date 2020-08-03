@@ -712,10 +712,11 @@ class LocalCache:
                 link = self.mec_cache_link(content_hash=new_node.content_id, mec=mec[0])
                 event = 'cached from mec'
                 display_event(kind='notify', event=event, origin='push from LocalCache')
-                if (decision[0] == 1) and (self.length >= self.cache_size):    # cache and cache is full
+                if (decision[0] == 1) and (self.length >= self.cache_size):  # cache and cache is full
                     decision = self.maintain_cache_size(new_node)
                     new_node = new_node if decision[1] is None else decision[1]
-                    if (decision[0] == 1) and ((precache == 0) or (new_node.count == 0)):   # do if only cache is to be stored! maintain min freq
+                    if (decision[0] == 1) and ((precache == 0) or (
+                            new_node.count == 0)):  # do if only cache is to be stored! maintain min freq
                         if new_node.count + 1 < self.min_freq:
                             if self.min_freq - self.max_freq > new_node.count + 1:
                                 new_node.count = self.min_freq - self.max_freq
@@ -725,12 +726,13 @@ class LocalCache:
                         self.length += 1
                     # if (precache == 0) or (new_node.count == 0):
                     #     new_node.count += 1
-                    event = f'incrementing new ->{new_node.count} | {self.chain.keys()}'   # incremented always for miss
+                    event = f'incrementing new ->{new_node.count} | {self.chain.keys()}'  # incremented always for miss
                     display_event(kind='notify', event=event, origin='push from LocalCache')
                     # decision 1 => cache
                     # temp 1 => dont cache
-                    new_node.retrieval_cost, new_node.content_id = self.get_file(request_link=link, temp=decision[0]^1)
-                elif (decision[0] == 1) and (self.length < self.cache_size):   # cache and cache not full
+                    new_node.retrieval_cost, new_node.content_id = self.get_file(request_link=link,
+                                                                                 temp=decision[0] ^ 1)
+                elif (decision[0] == 1) and (self.length < self.cache_size):  # cache and cache not full
 
                     self.table[new_node.id] = new_node
                     self.length += 1
@@ -744,7 +746,7 @@ class LocalCache:
                     display_event(kind='notify', event=event, origin='push from LocalCache')
                     new_node.retrieval_cost, new_node.content_id = self.get_file(request_link=link,
                                                                                  temp=decision[0] ^ 1)
-                else:    # dont cache
+                else:  # dont cache
                     if precache == 0:
                         new_node.count += 1
                         event = f'Not stored |incrementing new ->{new_node.count} | {self.chain.keys()}'
@@ -1176,16 +1178,16 @@ def save_data(mem, cpu, delay, no, cache_details, cache_size):
         detail += f'{det}{host_no}_{no}_{cache_size} = {cache_details[det]}\n'
     data += detail
     send_email(data, cache_size)
-    file = open(f'results/output{host_no}_{no}.py', 'w')
+    file = open(f'results/output{host_no}_{no}_{cache_size}.py', 'w')
     file.write(data)
     file.close()
-    send_path = '/home/osboxes/results/'
+    send_path = '/home/student/results/proposed/'
     sp.run(
-        ["scp", f'results/output{host_no}_{no}_{cache_size}.py', f"osboxes@{result_server_ip}:{send_path}"])
+        ["scp", f'results/output{host_no}_{no}_{cache_size}.py', f"student@{result_server_ip}:{send_path}"])
     for res in ['memory', 'cpu', 'delay']:
         os.system(f'zip results/{res}{host_no}_{no}_{cache_size}.zip results/{res}/*')
         sp.run(
-            ["scp", f'results/{res}{host_no}_{no}_{cache_size}.zip', f"osboxes@{result_server_ip}:{send_path}"])
+            ["scp", f'results/{res}{host_no}_{no}_{cache_size}.zip', f"student@{result_server_ip}:{send_path}"])
         send_email_attachment(f'results/{res}{host_no}_{no}_{cache_size}.zip', cache_size)
         time.sleep(r.uniform(1, 10))
 
@@ -1200,9 +1202,7 @@ def arrival_distribution():
     return (i for i in arrival_dist)
 
 
-result_server_ip = '192.168.122.195'
-memory_record = Memory(window_size=200, title='memory')
-cpu_record = CPU(window_size=200, title='cpu')
+result_server_ip = '192.168.60.129'
 
 
 class BrokerRequest:
@@ -1266,7 +1266,10 @@ def run(no_mec):
     no_of_requests = 3000
 
     def experiment(cache_size):
+        global memory_record
 
+        memory_record = Memory(window_size=200, title='memory')
+        cpu_record = CPU(window_size=200, title='cpu')
         network_cost_record = Delay(window_size=200)
         # (self, cache_size, max_freq, avg_max, window_size, content_name_server, delay)
         d_slice = data_slice(no_mec=no_mec, total_req_no=no_of_requests, initial=request_data.shape[0] - no_of_requests)
