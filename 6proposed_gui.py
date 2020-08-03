@@ -1326,7 +1326,7 @@ def arrival_distribution():
     # Poisson Distribution
     host = get_hostname()
     host_no = int(re.findall('[0-9]+', host)[0])
-    file = open(f'LSTM_caching/dist/{host_no}.pickle', 'rb')
+    file = open(f'dist/{host_no}.pickle', 'rb')
     arrival_dist = pickle.load(file)
     file.close()
     return (i for i in arrival_dist)
