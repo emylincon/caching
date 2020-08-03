@@ -296,7 +296,7 @@ def save_data(mem, cpu, delay, hit_ratio, no, cache_size):
     send_path = '/home/student/results/LSTM/'
     sp.run(
         ["scp", f'results/output{host_no}_{no}_{cache_size}.py', f"student@192.168.122.111:{send_path}"])
-    for res in ['memory', 'cpu', 'delay']:
+    for res in ['memory', 'cpu', 'delay', 'mems', 'cpus']:
         os.system(f'zip results/{res}{host_no}_{no}_{cache_size}.zip results/{res}/*')
         sp.run(
             ["scp", f'results/{res}{host_no}_{no}_{cache_size}.zip', f"osboxes@192.168.122.111:{send_path}"])
