@@ -1202,7 +1202,7 @@ def arrival_distribution():
     return (i for i in arrival_dist)
 
 
-result_server_ip = '192.168.60.129'
+result_server_ip = '192.168.122.111'
 
 
 class BrokerRequest:
@@ -1262,7 +1262,7 @@ def run(no_mec):
 
     collaborative_cache = CollaborativeCache(no_mec=no_mec)
     request_data = pd.read_csv(f'request_data.csv')
-    content_name_server = '192.168.122.195'
+    content_name_server = '192.168.122.111'
     no_of_requests = 3000
 
     def experiment(cache_size):

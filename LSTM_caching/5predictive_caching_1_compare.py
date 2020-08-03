@@ -295,11 +295,11 @@ def save_data(mem, cpu, delay, hit_ratio, no, cache_size):
     file.close()
     send_path = '/home/student/results/LSTM/'
     sp.run(
-        ["scp", f'results/output{host_no}_{no}_{cache_size}.py', f"student@192.168.60.129:{send_path}"])
+        ["scp", f'results/output{host_no}_{no}_{cache_size}.py', f"student@192.168.122.111:{send_path}"])
     for res in ['memory', 'cpu', 'delay']:
         os.system(f'zip results/{res}{host_no}_{no}_{cache_size}.zip results/{res}/*')
         sp.run(
-            ["scp", f'results/{res}{host_no}_{no}_{cache_size}.zip', f"osboxes@192.168.60.129:{send_path}"])
+            ["scp", f'results/{res}{host_no}_{no}_{cache_size}.zip', f"osboxes@192.168.122.111:{send_path}"])
         send_email(f'results/{res}{host_no}_{no}_{cache_size}.zip', cache_size)
         time.sleep(r.uniform(1, 10))
 
@@ -351,7 +351,7 @@ class BrokerRequest:
 
 
 def initialization():
-    br = BrokerRequest(user='mec', pw='password', ip='192.168.200.101', sub_topic='control')
+    br = BrokerRequest(user='mec', pw='password', ip='192.168.122.111', sub_topic='control')
     br.broker_loop()
     del br
     print('starting ....')
