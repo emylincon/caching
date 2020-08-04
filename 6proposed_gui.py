@@ -181,6 +181,9 @@ class Heap:
         else:
             return None
 
+    def list(self):
+        return [self.table[i] for i in self.heap]
+
     def __len__(self):
         return len(self.heap)
 
@@ -246,6 +249,9 @@ class CollaborativeCache:
             return mec, self.cache_decision(len(self.cache_store[cache_content_hash]))
         except KeyError:
             return None
+
+    def table(self):
+        return {i: self.cache_store[i].list() for i in self.cache_store}
 
     def replace(self, mec, old_cache, new_cache):  # multi-cast from mec
         self.cache_store[old_cache].remove(mec)
@@ -746,53 +752,33 @@ class LocalCache:
 
         else:
             display_event(kind='notify', event='cache miss', origin='push from LocalCache')
-            mec = self.check_mec(new_node)  # (mec, cache_decision[0,1])
-            if mec:
-                self.mec_hit += 1
-                decision[0] = mec[1]
-                link = self.mec_cache_link(content_hash=new_node.content_id, mec=mec[0])
-                print(f'\n\nMEC link -> {link} \n\n')
-                event = 'cached from mec'
-                display_event(kind='notify', event=event, origin='push from LocalCache')
-                if (decision[0] == 1) and (self.length >= self.cache_size):    # cache and cache is full
-                    decision = self.maintain_cache_size(new_node)
-                    new_node = new_node if decision[1] is None else decision[1]
-                    if (decision[0] == 1) and ((precache == 0) or (new_node.count == 0)):   # do if only cache is to be stored! maintain min freq
-                        if new_node.count + 1 < self.min_freq:
-                            if self.min_freq - self.max_freq > new_node.count + 1:
-                                new_node.count = self.min_freq - self.max_freq
-                            self.min_freq = new_node.count + 1
-                        new_node.count += 1
-                        self.table[new_node.id] = new_node
-                        self.length += 1
-                    # if (precache == 0) or (new_node.count == 0):
-                    #     new_node.count += 1
-                    event = f'incrementing new ->{new_node.count} | {self.chain.keys()}'   # incremented always for miss
-                    display_event(kind='notify', event=event, origin='push from LocalCache')
-                    # decision 1 => cache
-                    # temp 1 => dont cache
-                    new_node.retrieval_cost, new_node.content_id = self.get_file(request_link=link, temp=decision[0]^1)
-                elif (decision[0] == 1) and (self.length < self.cache_size):   # cache and cache not full
+            reply = self.check_mec(new_node)  # None or (decision, node) or (decision, node, replace)
+            if reply:
+                if precache == 0:
+                    self.mec_hit += 1
+                decision = reply
 
-                    self.table[new_node.id] = new_node
-                    self.length += 1
-                    if (precache == 0) or (new_node.count == 0):
-                        if new_node.count + 1 < self.min_freq:
-                            if self.min_freq - self.max_freq > new_node.count + 1:
-                                new_node.count = self.min_freq - self.max_freq
-                            self.min_freq = new_node.count + 1
-                        new_node.count += 1
+                print(f'\n\nMEC cache -> {collaborative_cache.table()} \n\n')
+                new_node = decision[1]
+                # do if only cache is to be stored! maintain min freq
+                if (decision[0] == 1) and ((precache == 0) or (new_node.count == 0)):
+                    new_node.count += 1
                     event = f'incrementing new ->{new_node.count} | {self.chain.keys()}'  # incremented always for miss
                     display_event(kind='notify', event=event, origin='push from LocalCache')
-                    new_node.retrieval_cost, new_node.content_id = self.get_file(request_link=link,
-                                                                                 temp=decision[0] ^ 1)
-                else:    # dont cache
-                    if precache == 0:
-                        new_node.count += 1
-                        event = f'Not stored |incrementing new ->{new_node.count} | {self.chain.keys()}'
-                    else:
-                        event = f'Not stored | Not incrementing new ->{new_node.count} | {self.chain.keys()}'
-                    new_node.retrieval_cost, new_node.content_id = self.get_file(request_link=link, temp=1)
+                if decision[0] == 1:
+                    event = 'cached from mec'
+                    display_event(kind='notify', event=event, origin='push from LocalCache')
+                    self.table[new_node.id] = new_node
+                    self.length += 1
+                    if new_node.count < self.min_freq:
+                        if self.min_freq - self.max_freq > new_node.count:
+                            new_node.count = self.min_freq - self.max_freq
+                        self.min_freq = new_node.count
+
+                else:
+                    event = 'Obtained from mec, Not Cached'
+                    display_event(kind='notify', event=event, origin='push from LocalCache')
+                    event = f'Not stored | Not incrementing new ->{new_node.count} | {self.chain.keys()}'
                     display_event(kind='notify', event=event, origin='push from LocalCache')
                 if len(decision) == 3:
                     if decision[2]:
@@ -800,6 +786,7 @@ class LocalCache:
                                           pickle.dumps([ip_address(), decision[2].content_id, new_node.content_id]))
                 elif self.length < self.cache_size:  # decision is right | send add cache only when length > cache_size
                     messenger.publish('cache/add', pickle.dumps([new_node.content_id, ip_address()]))
+
             else:
                 if precache == 0:
                     self.miss += 1
@@ -846,14 +833,48 @@ class LocalCache:
         if precache == 1:
             return decision[0]
 
+    def mec_rename_temp(self, content_hash):
+        filename_full = rf'temp/{content_hash}.html'
+        os.system(f'mv {filename_full} {self.cache_dir}/{content_hash}.html')
+
     def check_mec(self, new_node):
+        """:arg
+        This function returns one of the following:
+        1. None
+        2. (Decision, node)  => node plus cost and time
+        3. (Decision, node, replace)  => node plus cost and time
+        """
+        def get_response(content_hash):
+            response = collaborative_cache.find_cache(content_hash)
+            new_node.content_id = content_hash
+            if response:  # response = None or (cost, decision)
+                new_node.retrieval_cost = response[0]
+                if (response[1] == 1) and (self.length >= self.cache_size):
+                    reply = self.maintain_cache_size(new_node)  # result => cache_decision, node, replaced
+                    if reply[0] == 1:
+                        self.mec_rename_temp(content_hash)
+                    return reply, 1
+                elif response[1] == 0:
+                    return (response[1], new_node), 0
+                else:
+                    self.mec_rename_temp(content_hash)
+                    return (response[1], new_node), 1
+            else:
+                return None, 1
         if new_node.id in self.history.table:
-            return collaborative_cache.find_cache(new_node.content_id)
+            con_id = self.history.table[new_node.id].content_id
+            decision = get_response(con_id)
+            if (decision[0] != None) and (decision[1] == 0):
+                new_node = self.history.delete(new_node)
+                new_node.next, new_node.prev = None, None
+                self.history.push(new_node)
+            new_node.last_access = time.time()
+            return decision[0]
         else:
             content_id = self.content_name_resolution.get_content_hash(location_hash=new_node.id)
             if content_id:
-                new_node.content_id = content_id
-                return collaborative_cache.find_cache(content_id)
+                new_node.last_access = time.time()
+                return get_response(content_id)[0]
         return None
 
     def find_new_min_freq(self):
@@ -886,6 +907,7 @@ class LocalCache:
             # print('comparing: ', node.data, victim.data, '->', self.data_display())
             if (node.last_access > victim.last_access) or (node.retrieval_cost > victim.retrieval_cost):
                 # print('before eviction ++++',  self.data_display() )
+                display_event(kind='notify', event=f'evicting {victim.content_id}', origin='maintain_cache_size')
                 self.evict(victim)
                 replaced = victim
                 victim.next, victim.prev = None, None
