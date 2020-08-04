@@ -834,6 +834,9 @@ class LocalCache:
         if precache == 1:
             return decision[0]
 
+        if len(os.listdir('temp/')) > 1:
+            os.system('rm temp/*.html')
+
     def mec_rename_temp(self, content_hash):
         filename_full = rf'temp/{content_hash}.html'
         os.system(f'mv {filename_full} {self.cache_dir}/{content_hash}.html')
