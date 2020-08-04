@@ -1273,7 +1273,7 @@ def run(no_mec):
         network_cost_record = Delay(window_size=200)
         # (self, cache_size, max_freq, avg_max, window_size, content_name_server, delay)
         d_slice = data_slice(no_mec=no_mec, total_req_no=no_of_requests, initial=request_data.shape[0] - no_of_requests)
-        store = LocalCache(cache_size=cache_size, max_freq=20, avg_max=50, window_size=20,
+        store = LocalCache(cache_size=cache_size, max_freq=30, avg_max=100, window_size=20,
                            content_name_server=content_name_server,
                            delay=network_cost_record)
 
