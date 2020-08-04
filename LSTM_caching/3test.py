@@ -14,7 +14,7 @@ def send_email(file):
 
     msg = EmailMessage()
 
-    msg['Subject'] = 'Grab dinner this weekend?!'
+    msg['Subject'] = 'LSTM Caching size=50'
 
     msg['From'] = EMAIL_ADDRESS
 
@@ -71,7 +71,7 @@ def fix():
     no = 10
     send_path = '/home/osboxes/results/'
     host_no = int(re.findall('[0-9]+', host)[0])
-    for res in ['memory', 'cpu', 'delay']:
+    for res in ['memory', 'cpu', 'delay', 'mems', 'cpus']:
         os.system(f'zip results/{res}{host_no}_{no}.zip results/{res}/*')
         send_email(f'results/{res}{host_no}_{no}.zip')
         # sp.run(

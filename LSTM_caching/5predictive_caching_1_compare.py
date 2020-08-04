@@ -299,7 +299,7 @@ def save_data(mem, cpu, delay, hit_ratio, no, cache_size):
     for res in ['memory', 'cpu', 'delay', 'mems', 'cpus']:
         os.system(f'zip results/{res}{host_no}_{no}_{cache_size}.zip results/{res}/*')
         sp.run(
-            ["scp", f'results/{res}{host_no}_{no}_{cache_size}.zip', f"osboxes@192.168.122.111:{send_path}"])
+            ["scp", f'results/{res}{host_no}_{no}_{cache_size}.zip', f"student@192.168.122.111:{send_path}"])
         send_email(f'results/{res}{host_no}_{no}_{cache_size}.zip', cache_size)
         time.sleep(r.uniform(1, 10))
 
@@ -388,7 +388,7 @@ def run(no_mec):
         save_data(mem=memory.data_set, cpu=cpu.data_set, delay=network_cost_record.data_set,
                   hit_ratio=store.hit_ratio(), no=no_mec, cache_size=cache_size)
 
-    for size in [50, 70, 100]:
+    for size in [70, 100]:
         experiment(size)
 
 
