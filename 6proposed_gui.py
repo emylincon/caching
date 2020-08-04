@@ -244,10 +244,26 @@ class CollaborativeCache:
             self.cache_store[cache_content_hash] = Heap()
         self.cache_store[cache_content_hash].push(mec_delay, mec)
 
+    @staticmethod
+    def __getfile(mec, content_hash):
+        request_link = f"ftp://{mec}/cache/{content_hash}.html"
+        name = f'{content_hash}.html'
+        start = time.perf_counter()
+        filename = f'temp/{name}'
+        try:
+            wget.download(request_link, filename)
+        except Exception as e:
+            wget.download(request_link, filename)
+
+        cost = round(time.perf_counter() - start, 5)
+
+        return cost
+
     def find_cache(self, cache_content_hash):
         try:
             mec = self.cache_store[cache_content_hash].get_head()
-            return mec, self.cache_decision(len(self.cache_store[cache_content_hash]))
+            return self.__getfile(mec, cache_content_hash), self.cache_decision(
+                len(self.cache_store[cache_content_hash]))
         except KeyError:
             return None
 
