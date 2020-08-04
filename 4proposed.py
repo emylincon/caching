@@ -758,9 +758,8 @@ class LocalCache:
                     if decision[2]:
                         messenger.publish('cache/replace',
                                           pickle.dumps([ip_address(), decision[2].content_id, new_node.content_id]))
-                elif self.length < self.cache_size:  # decision is right | send add cache only when length > cache_size
+                elif (self.length < self.cache_size) and (decision[0] == 1):
                     messenger.publish('cache/add', pickle.dumps([new_node.content_id, ip_address()]))
-
             else:
                 if precache == 0:
                     self.miss += 1
@@ -791,7 +790,7 @@ class LocalCache:
                         messenger.publish('cache/replace',
                                           pickle.dumps([ip_address(), decision[2].content_id, new_node.content_id]))
 
-                elif self.length < self.cache_size:  # decision is right | send add cache only when length > cache_size
+                elif (self.length < self.cache_size) and (decision[0] == 1):
                     messenger.publish('cache/add', pickle.dumps([new_node.content_id, ip_address()]))
 
             if precache == 0:
