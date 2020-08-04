@@ -388,7 +388,7 @@ def run(no_mec):
         save_data(mem=memory.data_set, cpu=cpu.data_set, delay=network_cost_record.data_set,
                   hit_ratio=store.hit_ratio(), no=no_mec, cache_size=cache_size)
 
-    for size in [70, 100]:
+    for size in [30]:
         experiment(size)
 
 

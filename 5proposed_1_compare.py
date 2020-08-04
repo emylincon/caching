@@ -541,7 +541,7 @@ class LocalCache:
     def __init__(self, cache_size, max_freq, avg_max, window_size, content_name_server, delay):
         self.cache_size = cache_size
         self.max_freq = max_freq
-        self.history = FIFO(cache_size * 2)
+        self.history = FIFO(cache_size * 4)
         self.chain = {}
         self.table = {}
         self.length = 0
@@ -1291,7 +1291,7 @@ def run(no_mec):
         save_data(mem=memory_record.data_set, cpu=cpu_record.data_set, delay=network_cost_record.data_set, no=no_mec,
                   cache_details=store.outcome_details(), cache_size=cache_size)
 
-    for size in [50, 70, 100]:
+    for size in [30]:
         experiment(size)
 
     messenger.run = 0
