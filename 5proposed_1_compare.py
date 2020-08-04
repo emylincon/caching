@@ -541,7 +541,7 @@ class LocalCache:
     def __init__(self, cache_size, max_freq, avg_max, window_size, content_name_server, delay):
         self.cache_size = cache_size
         self.max_freq = max_freq
-        self.history = FIFO(cache_size * 4)
+        self.history = FIFO(cache_size * 2)
         self.chain = {}
         self.table = {}
         self.length = 0
@@ -562,7 +562,7 @@ class LocalCache:
         self.rules = RuleStore(ant_max=4, max_length=20)
         self.matches = Matches(5)
         self.content_name_resolution = NameResolutionServer(content_name_server=content_name_server)
-        self.rule_matches = {'window_count': 0, 'window_size': int(self.window_size / 2), 'rule_count': 0}
+        self.rule_matches = {'window_count': 0, 'window_size': int(self.cache_size / 2), 'rule_count': 0}
 
     @staticmethod
     def web_page(request):
