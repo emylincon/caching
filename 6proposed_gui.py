@@ -775,7 +775,7 @@ class LocalCache:
                     self.mec_hit += 1
                 decision = reply
 
-                print(f'\n\nMEC cache -> {collaborative_cache.table()} \n\n')
+                #print(f'\n\nMEC cache -> {collaborative_cache.table()} \n\n')
                 new_node = decision[1]
                 # do if only cache is to be stored! maintain min freq
                 if (decision[0] == 1) and ((precache == 0) or (new_node.count == 0)):
