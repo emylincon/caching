@@ -751,6 +751,7 @@ class LocalCache:
                 self.mec_hit += 1
                 decision[0] = mec[1]
                 link = self.mec_cache_link(content_hash=new_node.content_id, mec=mec[0])
+                print(f'\n\nMEC link -> {link} \n\n')
                 event = 'cached from mec'
                 display_event(kind='notify', event=event, origin='push from LocalCache')
                 if (decision[0] == 1) and (self.length >= self.cache_size):    # cache and cache is full
