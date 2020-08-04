@@ -119,6 +119,7 @@ class Delay:
         else:
             avg1 = self.data_set[-1]
         _count += 1
+        print(f'\n\ncost,avg1,a1 = {_count}, {avg1}, {a1} \n\n')
         avg1 = ((_count - 1) * avg1 + a1) / _count  # cumulative average formula μ_n=((n-1) μ_(n-1)  + x_n)/n
         return round(avg1, 4)
 
