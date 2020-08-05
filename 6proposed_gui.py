@@ -848,11 +848,10 @@ class LocalCache:
                 self.chain[new_node.count] = LRUChain()
                 self.chain[new_node.count].push(new_node)
         self.maintain_count()
-        if precache == 1:
-            return decision[0]
-
         if len(os.listdir('temp/')) > 1:
             os.system('rm temp/*.html')
+        if precache == 1:
+            return decision[0]
 
     def mec_rename_temp(self, content_hash):
         filename_full = rf'temp/{content_hash}.html'
@@ -870,6 +869,8 @@ class LocalCache:
             new_node.content_id = content_hash
             if response:  # response = None or (cost, decision)
                 new_node.retrieval_cost = response[0]
+                if self.length < self.cache_size:
+                    response = (response[0], 1)
                 if (response[1] == 1) and (self.length >= self.cache_size):
                     reply = self.maintain_cache_size(new_node)  # result => cache_decision, node, replaced
                     if reply[0] == 1:
