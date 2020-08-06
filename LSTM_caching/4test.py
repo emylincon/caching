@@ -1,8 +1,8 @@
 import smtplib
 from email.message import EmailMessage
 
-EMAIL_ADDRESS = "spicetala@gmail.com"
-EMAIL_PASSWORD = "dumbaccount123"
+EMAIL_ADDRESS = ""
+EMAIL_PASSWORD = ""
 
 msg = EmailMessage()
 

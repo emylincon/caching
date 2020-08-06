@@ -10,7 +10,7 @@ import random as r
 
 def send_email(file):
     EMAIL_ADDRESS = "spicetala@gmail.com"
-    EMAIL_PASSWORD = "dumbaccount123"
+    EMAIL_PASSWORD = ""
 
     msg = EmailMessage()
 
