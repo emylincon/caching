@@ -1,11 +1,27 @@
-### Predictive Caching using Association
-* under construction...
+# Predictive Caching using Association
+Full Implementation of A Novel Predictive-Collaborative-Replacement (PCR) Algorithm for MECs
+
+## Simulation Experiment
+* To run the simulation test `python3 caching/test_files/compare1.py`
+* The Result can be seen below
+
+![Results](simulation/result.png)
+
+## Emulation Experiment
+* To Carry out the emulation experiment you will need a GNS3 platform
+* Setup and download of GNS3 is available [here](https://www.gns3.com/)
+* The Results can be seen below
+
+![Result](emulation/result.png)
+### Emulation Experiment SETUP and Installation
+* To run setup on ubuntu run the `ubuntu_setup.sh`
+* To run setup on aline run `alpine_setup.sh`
 
 #### Note for alpine use
 refere to [link](https://gist.github.com/orenitamar/f29fb15db3b0d13178c1c4dd611adce2) on how to install dependencies
 
 
-### Installing FTP in Linux
+#### Installing FTP in Linux
 ```bash
 sudo apt-get install vsftpd
 ```
