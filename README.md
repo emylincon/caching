@@ -48,3 +48,6 @@ cp vsftpd.conf /etc/
 ```
 
 * save files in `/srv/ftp` to be shared by ftp
+
+#### Content Server
+[Netlify Application](https://competent-euler-834b51.netlify.app)
