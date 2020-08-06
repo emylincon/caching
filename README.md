@@ -10,6 +10,8 @@ Full Implementation of A Novel Predictive-Collaborative-Replacement (PCR) Algori
 ## Emulation Experiment
 * To Carry out the emulation experiment you will need a GNS3 platform
 * Setup and download of GNS3 is available [here](https://www.gns3.com/)
+* To run the C-LSTM `python3 LSTM_caching/predictive_caching.py --n=x` where x is the number of MECs deployed
+* TO run PCR `python3 4proposed.py --n=x --ip=address` where x is the number of MECs deployed and address is the ip address of the MQTT broker
 * The Results can be seen below
 
 ![Result](emulation/result.png)
@@ -52,5 +54,8 @@ cp vsftpd.conf /etc/
 #### Content Server
 [Netlify Application](https://competent-euler-834b51.netlify.app)
 
-### Name Server
+#### Name Server
 To deploy the name server refer to [Link](https://github.com/emylincon/caching_chain)
+
+#### MQTT Broker
+To deply the MQTT broker refer to [link](https://github.com/emylincon/mqtt)
