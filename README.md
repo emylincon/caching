@@ -51,3 +51,6 @@ cp vsftpd.conf /etc/
 
 #### Content Server
 [Netlify Application](https://competent-euler-834b51.netlify.app)
+
+### Name Server
+To deploy the name server refer to [Link](https://github.com/emylincon/caching_chain)
