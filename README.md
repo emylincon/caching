@@ -58,7 +58,7 @@ cp vsftpd.conf /etc/
 To deploy the name server refer to [Link](https://github.com/emylincon/caching_chain)
 
 #### MQTT Broker
-To deply the MQTT broker refer to [link](https://github.com/emylincon/mqtt)
+To deploy the MQTT broker refer to [link](https://github.com/emylincon/mqtt)
 
 #### PreBuilt Docker Images
 
