@@ -1013,7 +1013,7 @@ class LocalCache:
         cols = ['g', 'r']
         ypos = ([0, 1])
 
-        values = [self.hit, self.miss, self.mec_hit]
+        values = [self.hit+self.mec_hit, self.miss]
         for i in values:
             j = values.index(i)
             ax.text(j - 0.1, values[j], '{}%'.format(val[j]), rotation=0,
