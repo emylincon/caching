@@ -75,12 +75,12 @@ class Record:
 
     def plot_data(self, ax, col):
         ax.grid(True)
-        ax.plot(list(range(len(self.data_set))), self.data_set, linewidth=2, label=self.title, color=col)
+        ax.plot(list(range(len(self.data_set))), self.data_set, linewidth=2, label=self.title.upper(), color=col)
         ax.set_ylabel(self.title)
         ax.set_xlabel('Time (seconds)')
         ax.fill_between(list(range(len(self.data_set))), self.data_set, 0, alpha=0.5, color=col)
         ax.legend()
-        ax.set_title(f'{self.title} Utilization over Time')
+        #ax.set_title(f'{self.title} Utilization over Time')
         plt.subplot(ax)
 
 
@@ -1021,7 +1021,7 @@ class LocalCache:
         ax.set_xticks(ypos)
         ax.set_xticklabels(keys)
         ax.bar(ypos, values, align='center', color=cols, alpha=0.3)
-        ax.set_title('Cache Performance')
+        #ax.set_title('Cache Performance')
         plt.subplot(ax)
 
     def plot_association(self, ax):
