@@ -76,7 +76,7 @@ class Record:
     def plot_data(self, ax, col):
         ax.grid(True)
         ax.plot(list(range(len(self.data_set))), self.data_set, linewidth=2, label=self.title.upper(), color=col)
-        ax.set_ylabel(self.title)
+        #ax.set_ylabel(self.title)
         ax.set_xlabel('Time (seconds)')
         ax.fill_between(list(range(len(self.data_set))), self.data_set, 0, alpha=0.5, color=col)
         ax.legend()
