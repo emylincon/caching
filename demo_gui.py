@@ -79,6 +79,7 @@ class Record:
         #ax.set_ylabel(self.title)
         ax.set_xlabel('Time (seconds)')
         ax.fill_between(list(range(len(self.data_set))), self.data_set, 0, alpha=0.5, color=col)
+        ax.set_ylim(top=100)
         ax.legend()
         #ax.set_title(f'{self.title} Utilization over Time')
         plt.subplot(ax)
