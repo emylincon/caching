@@ -1,19 +1,24 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+fontsize = 16
+
 
 def bar_chart(LSTM, proposed, ax):
     x = [0, 3, 6]
-
-    ax.bar(np.array(x) - 0.4, list(LSTM.values()), label='C-LSTM', hatch='//', edgecolor='k', color='b', alpha=0.8)
-    ax.bar(np.array(x) + 0.4, list(proposed.values()), label='PCR', hatch='..', edgecolor='k', color='g', alpha=0.8)
+    ax.bar(np.array(x) - 0.4, list(LSTM.values()), label='C-LSTM', hatch='/', edgecolor='b', lw=1, color='none', alpha=1)
+    # ax.bar(np.array(x) - 0.4, list(LSTM.values()), label='C-LSTM', hatch='/', edgecolor='k', color='none', alpha=1)
+    ax.bar(np.array(x) + 0.4, list(proposed.values()), label='PCR', hatch='o', edgecolor='g', lw=1, color='none', alpha=1)
+    # ax.bar(np.array(x) + 0.4, list(proposed.values()), label='PCR', hatch='o', edgecolor='k', color='none', alpha=1)
     ax.set_xticks(x)
     ax.set_ylim(top=100)
     ax.set_xticklabels(list(LSTM.keys()))
-    ax.set_xlabel('No of MECs', fontsize=15)
-    ax.set_ylabel('Hit Ratio (%)', fontsize=15)
-    ax.set_title(f'Hit Ratio Comparision', fontsize=15)
-    ax.legend(prop={"size": 13})
+    ax.set_xlabel('No of MECs', fontsize=fontsize, fontweight='bold')
+    ax.set_ylabel('Hit Ratio (%)', fontsize=fontsize, fontweight='bold')
+    ax.set_title(f'Hit Ratio Comparision', fontsize=fontsize, fontweight='bold')
+    ax.tick_params(axis='x', labelsize=16)
+    ax.tick_params(axis='y', labelsize=16)
+    ax.legend(prop={"size": 15})
 
 
 def line_graph(data, ax, title, metric):
@@ -41,10 +46,12 @@ def line_graph(data, ax, title, metric):
         a = min([len(ptx), len(pt)])
         ax.plot(ptx[:a], pt[:a], linestyle=(0, (3, 1, 1, 1, 1, 1)),
                 linewidth=2, **style[key], label=key)
-        ax.set_ylabel(f'{title} ({metric})', fontsize=15)
-        ax.legend(prop={"size": 13})
-        ax.set_xlabel('No of Samples Taken', fontsize=15)
-        ax.set_title(f'{title}', fontsize=15)
+        ax.set_ylabel(f'{title} ({metric})', fontsize=fontsize, fontweight='bold')
+        ax.legend(prop={"size": 15})
+        ax.set_xlabel('No of Samples Taken', fontsize=fontsize, fontweight='bold')
+        ax.set_title(f'{title}', fontsize=15, fontweight='bold')
+        ax.tick_params(axis='x', labelsize=16)
+        ax.tick_params(axis='y', labelsize=16)
     plt.subplot(ax)
 
 
@@ -1704,7 +1711,8 @@ def run():
     line_graph(delay, ax2, 'Access Delay', 's')
     line_graph(cpu, ax3, 'Moving CPU Utilization', '%')
     line_graph(mem, ax4, 'Moving Memory Utilization', '%')
-
+    plt.rcParams['hatch.linewidth'] = 2.0
+    plt.rcParams['hatch.color'] = 'black'
     plt.show()
 
 run()
