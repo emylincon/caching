@@ -1,6 +1,10 @@
 import hashlib
 import math
 
+'''
+This is a implementation of the FBR algorithm in python
+'''
+
 
 # A linked list node
 class Node:
