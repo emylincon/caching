@@ -14,7 +14,7 @@ Full Implementation of A Novel Predictive-Collaborative-Replacement (PCR) Algori
 * TO run PCR `python3 4proposed.py --n=x --ip=address` where x is the number of MECs deployed and address is the ip address of the MQTT broker
 * The Results can be seen below
 
-![Result](emulation/result.png)
+![Result](emulation/res1.png)
 ### Emulation Experiment SETUP and Installation
 * To run setup on ubuntu run the `ubuntu_setup.sh`
 * To run setup on aline run `alpine_setup.sh`
