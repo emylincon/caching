@@ -58,7 +58,7 @@ def exp_control():
     h1 = Thread(target=messenger.broker_loop)
     h1.start()
     for mec_no in exp_no:
-        messenger.publish(topic=broker_dict['topic'], data=pickle.dumps(['start', [i for i in range(mec_no)], mec_no]))
+        messenger.publish(topic=broker_dict['sub_topic'], data=pickle.dumps(['start', [i for i in range(mec_no)], mec_no]))
         print(f'Experiment {mec_no} has commenced!')
         while len(messenger.stopped) != mec_no:
             time.sleep(10)
