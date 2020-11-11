@@ -1,5 +1,7 @@
 import pickle
 import paho.mqtt.client as mqtt
+from threading import Thread
+import time
 
 
 
@@ -51,7 +53,11 @@ def exp_control():
 
     input('start: ')
     messenger = BrokerCom(**broker_dict)
-    messenger.publish(topic=broker_dict['sub_topic'], data=pickle.dumps(['start']))
+    h1 = Thread(target=messenger.broker_loop)
+    h1.start()
+    time.sleep(3)
+    messenger.publish(topic=broker_dict['sub_topic'], data=pickle.dumps(['start', {1,2,3}]))
+    print('published')
 
 
 if __name__ == '__main__':
