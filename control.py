@@ -48,7 +48,8 @@ class BrokerCom:
 
 def exp_control():
     it = input('MEC Iterations(5 10 15): ')
-    broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'cache/control', 'ip': 'localhost'}
+    # broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'cache/control', 'ip': 'localhost'}
+    broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'control', 'ip': 'localhost'}
     if it == '':
         exp_no = [5, 10, 15]
     else:
