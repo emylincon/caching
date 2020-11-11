@@ -16,6 +16,7 @@ Full Implementation of A Novel Predictive-Collaborative-Replacement (PCR) Algori
 
 ![Result](emulation/res1.png)
 ### Emulation Experiment SETUP and Installation
+use the latest docker image `ugwuanyi/ubuntu_tf3` and run `git pull https://github.com/emylincon/caching`
 * To run setup on ubuntu run the `ubuntu_setup.sh`
 * To run setup on aline run `alpine_setup.sh`
 
@@ -49,7 +50,7 @@ anonymous_enable=YES
 cp vsftpd.conf /etc/
 ```
 
-* save files in `/srv/ftp/cache` to be shared by ftp
+* create directory `/srv/ftp/cache` to be shared by MECs
 
 #### Content Server
 [Netlify Application](https://competent-euler-834b51.netlify.app)
@@ -67,3 +68,17 @@ Alpine Image =>  `ugwuanyi/alpine_cache3`
 Ubuntu Image => `ugwuanyi/ubuntu_tf3`
 
 Name server =>  `ugwuanyi/nameserver`
+
+### to Run the Demo
+* sh clean_up.sh
+* /etc/ssh/start
+* ssh-keygen -t rsa ; ssh-copy-id osboxes@192.168.200.100
+```
+osboxes@192.168.200.100 is the result server
+```
+```commandline
+cd /home/mec/caching/ ; /etc/init.d/sshd restart ; /etc/init.d/vsftpd start ; git pull https://github.com/emylincon/caching ; sh clean_up.sh ; cd python3 7demo.py --n=10 --ip='192.168.205.142'
+```
+```commandline
+python3 control1.py
+```
