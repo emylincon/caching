@@ -51,7 +51,7 @@ def exp_control():
 
     broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'control', 'ip': 'localhost'}
 
-    input('start: ')
+    input('start> ')
     messenger = BrokerCom(**broker_dict)
     h1 = Thread(target=messenger.broker_loop)
     h1.start()
