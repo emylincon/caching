@@ -3,6 +3,7 @@ import paho.mqtt.client as mqtt
 from threading import Thread
 import time
 
+broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'control', 'ip': 'localhost'}
 
 
 class BrokerCom:
@@ -47,17 +48,26 @@ class BrokerCom:
         print('Broker Communication Object Deleted!')
 
 
-def exp_control():
-
-    broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'control', 'ip': 'localhost'}
-
+def publish():
     input('start> ')
+    messenger.publish(topic=broker_dict['sub_topic'], data=pickle.dumps(['start', {1, 2, 3}]))
+    print('published')
+
+
+def exp_control():
+    global messenger
+
     messenger = BrokerCom(**broker_dict)
     h1 = Thread(target=messenger.broker_loop)
     h1.start()
-    time.sleep(3)
-    messenger.publish(topic=broker_dict['sub_topic'], data=pickle.dumps(['start', {1,2,3}]))
-    print('published')
+    time.sleep(1)
+    while True:
+        try:
+            publish()
+        except KeyboardInterrupt:
+            print('terminated')
+            messenger.run = 0
+            break
 
 
 if __name__ == '__main__':
