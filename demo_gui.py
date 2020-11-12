@@ -245,8 +245,7 @@ class CollaborativeCache:
             self.cache_store[cache_content_hash] = Heap()
         self.cache_store[cache_content_hash].push(mec_delay, mec)
 
-    @staticmethod
-    def __getfile(mec, content_hash):
+    def __getfile(self, mec, content_hash):
         request_link = f"ftp://{mec}/cache/{content_hash}.html"
         name = f'{content_hash}.html'
         start = time.perf_counter()
@@ -254,7 +253,9 @@ class CollaborativeCache:
         try:
             wget.download(request_link, filename)
         except Exception as e:
-            wget.download(request_link, filename)
+            self.remove(mec, content_hash)
+            raise FileNotFoundError('cache not found on mec')
+            #wget.download(request_link, filename)
 
         cost = round(time.perf_counter() - start, 5)
 
@@ -267,9 +268,14 @@ class CollaborativeCache:
                 len(self.cache_store[cache_content_hash]))
         except KeyError:
             return None
+        except FileNotFoundError:
+            return None
 
     def table(self):
         return {i: self.cache_store[i].list() for i in self.cache_store}
+
+    def remove(self, mec, old_cache):
+        self.cache_store[old_cache].remove(mec)
 
     def replace(self, mec, old_cache, new_cache):  # multi-cast from mec
         self.cache_store[old_cache].remove(mec)
