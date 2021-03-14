@@ -1232,6 +1232,8 @@ class BrokerCom:
         self.port = 1883
         self.topic = sub_topic
         self.client = mqtt.Client()
+        self.client.username_pw_set(self.user, self.pw)
+        self.client.connect(self.ip, self.port, 60)
         self.mec_ip = ip_address()
         self.run = 1
 
@@ -1260,8 +1262,6 @@ class BrokerCom:
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
 
-        self.client.username_pw_set(self.user, self.pw)
-        self.client.connect(self.ip, self.port, 60)
         self.client.loop_start()
         while True:
             if self.run == 0:
@@ -1391,6 +1391,8 @@ class BrokerRequest:
         self.topic = sub_topic
         self.response = None
         self.client = mqtt.Client()
+        self.client.username_pw_set(self.user, self.pw)
+        self.client.connect(self.ip, self.port, 60)
 
     def on_connect(self, connect_client, userdata, flags, rc):
         print("Connected with Code :" + str(rc))
@@ -1405,8 +1407,6 @@ class BrokerRequest:
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
 
-        self.client.username_pw_set(self.user, self.pw)
-        self.client.connect(self.ip, self.port, 60)
         self.client.loop_start()
         while True:
             if self.response:
