@@ -14,7 +14,6 @@ echo "installing required python3 packages..."
 echo "(drawnow, psutil, matplotlib, paramiko, pyfiglet, numpy)\n"
 pip3 install drawnow
 apt install python3-psutil -y
-apt install python3-matplotlib -y
 apt install python3-paramiko -y
 apt install python3-pyfiglet -y
 apt install python3-numpy -y
@@ -24,6 +23,7 @@ pip3 install mlxtend
 pip3 install pandas
 pip3 install requests
 pip3 install wget
+pip3 install matplotlib=3.3.2
 echo "installing openssh...\n"
 apt install openssh-client -y
 apt install openssh-server -y

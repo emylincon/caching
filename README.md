@@ -74,15 +74,49 @@ Ubuntu Image => `ugwuanyi/ubuntu_tf3`
 Name server =>  `ugwuanyi/nameserver`
 
 ### to Run the Demo
-* sh clean_up.sh
-* /etc/ssh/start
-* ssh-keygen -t rsa ; ssh-copy-id osboxes@192.168.200.100
+1. start name server
+```shell
+/etc/init.d/nginx start
+gunicorn server:app
 ```
-osboxes@192.168.200.100 is the result server
+	
+2. start broker 
+```shell
+/etc/init.d/mosquitto start
 ```
-```commandline
-cd /home/mec/caching/ ; /etc/init.d/sshd restart ; /etc/init.d/vsftpd start ; git pull https://github.com/emylincon/caching ; sh clean_up.sh ; cd python3 7demo.py --n=10 --ip='192.168.205.142'
+
+3. setup result server
+   * Pull and run setup
+```shell
+git pull https://github.com/emylincon/caching
+cd caching
+sudo sh ubuntu_setup.sh
+sudo sh LSTM_ubuntu.sh
+````
+  * install FTP server on result server
+```shell
+sudo apt install vftpd
+cp vsftpd.conf /etc/
+/etc/init.d/vsftpd restart
 ```
-```commandline
+    
+4. start FTP server and SSH server on all MECs
+```shell
+/etc/init.d/vsftpd start ; /etc/init.d/ssh start
+```
+
+5. copy ssh key from all mecs to the result server
+```shell
+ssh-keygen -t rsa ; ssh-copy-id osboxes@result_server_ip
+```
+
+6: start application
+```shell
+sh clean_up.sh ; cd python3 7demo.py --no=5 --ip=broker_ip --name_server=name_server_ip --result_server=result_server_ip
+
+```
+	
+7: run control 
+```shell
 python3 control1.py
 ```

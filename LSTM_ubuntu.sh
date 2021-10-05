@@ -14,7 +14,6 @@ echo "installing required python3 packages..."
 echo "(drawnow, psutil, matplotlib, paramiko, pyfiglet, numpy)\n"
 pip3 install drawnow
 apt install python3-psutil -y
-apt install python3-matplotlib -y
 apt install python3-paramiko -y
 apt install python3-pyfiglet -y
 apt install python3-numpy -y
@@ -31,6 +30,7 @@ pip3 install --upgrade pip
 pip3 install tensorflow==2.2.0
 pip3 install numpy scipy scikit-learn pillow h5py
 pip3 install keras==2.3.1
+pip3 install matplotlib=3.3.2
 
 echo "installing network tools..."
 echo "(wget, apt-utils, iputils-ping, net-tools, nmap)\n"

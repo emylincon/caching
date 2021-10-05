@@ -1007,7 +1007,7 @@ class LocalCache:
             else:
                 explode.append(0)
 
-        ax.pie(val, autopct='%1.1f%%', shadow=True, explode=explode, colors=['g', 'r'])
+        ax.pie(val, autopct='%1.1f%%', shadow=True, explode=explode, colors=['g', 'r'], normalize=False)
         ax.set_title('Association Prediction')
         plt.subplot(ax)
 

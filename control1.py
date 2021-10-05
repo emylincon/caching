@@ -3,7 +3,8 @@ import paho.mqtt.client as mqtt
 from threading import Thread
 import time
 
-broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'control', 'ip': 'localhost'}
+broker_ip = input('Enter Broker ip: ')
+broker_dict = {'user': 'mec', 'pw': 'password', 'sub_topic': 'control', 'ip': broker_ip}
 
 
 class BrokerCom:
