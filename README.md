@@ -14,8 +14,8 @@ Full Implementation of A Novel Predictive-Collaborative-Replacement (PCR) Algori
 ## Emulation Experiment
 * To Carry out the emulation experiment you will need a GNS3 platform
 * Setup and download of GNS3 is available [here](https://www.gns3.com/)
-* To run the C-LSTM `python3 LSTM_caching/predictive_caching.py --n=x` where x is the number of MECs deployed
-* TO run PCR `python3 4proposed.py --n=x --ip=address` where x is the number of MECs deployed and address is the ip address of the MQTT broker
+* To run the C-LSTM `python3 LSTM_caching/predictive_caching.py --n=x --ip=address --result_server=z` where x is the number of MECs deployed, address is the ip address of the MQTT broker, and z is the result server ip
+* TO run PCR `python3 4proposed.py --n=x --ip=address --name_server=y --result_server=z` where x is the number of MECs deployed, address is the ip address of the MQTT broker, y is the ip address of the name server, and z is the result server ip 
 * The Results can be seen below
 
 ![Result](emulation/res1.png)

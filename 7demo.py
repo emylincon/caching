@@ -1250,7 +1250,6 @@ def arrival_distribution():
     return (i for i in arrival_dist)
 
 
-result_server_ip = '192.168.200.229'
 memory_record = Memory(window_size=200, title='memory')
 cpu_record = CPU(window_size=200, title='cpu')
 
@@ -1318,7 +1317,6 @@ def run(no_mec):
     no_of_requests = (no_reqs // n) * n  # No of requests should be divisible by 5, 10, 15 MECs |  67,200
 
     network_cost_record = Delay(window_size=200)
-    content_name_server = '192.168.200.229'
     # (self, cache_size, max_freq, avg_max, window_size, content_name_server, delay)
     d_slice = data_slice(no_mec=no_mec, total_req_no=no_of_requests, initial=request_data.shape[0] - no_of_requests)
     store = LocalCache(cache_size=50, max_freq=15, avg_max=100, window_size=20,
@@ -1346,12 +1344,18 @@ def run(no_mec):
 
 def main():
     global broker_ip
+    global content_name_server
+    global result_server_ip
 
     parser = argparse.ArgumentParser()  # --n=5
     parser.add_argument('--n', type=int, default=1, help='Number of MEC nodes')
     parser.add_argument('--ip', type=str, default='localhost', help='broker ip address')
+    parser.add_argument('--name_server', type=str, default='localhost', help='name server ip address')
+    parser.add_argument('--result_server', type=str, default='localhost', help='result server ip address')
     args = parser.parse_args()
     broker_ip = args.ip
+    content_name_server = args.name_server
+    result_server_ip = args.result_server
     run(no_mec=args.n)
 
 

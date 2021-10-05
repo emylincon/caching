@@ -356,11 +356,11 @@ def save_data(mem, cpu, delay, hit_ratio, no):
     file.close()
     send_path = '/home/osboxes/results/'
     sp.run(
-        ["scp", f'results/output{host_no}_{no}.py', f"osboxes@192.168.200.101:{send_path}"])
+        ["scp", f'results/output{host_no}_{no}.py', f"osboxes@{result_server}:{send_path}"])
     for res in ['memory', 'cpu', 'delay']:
         os.system(f'zip results/{res}{host_no}_{no}.zip results/{res}/*')
         sp.run(
-            ["scp", f'results/{res}{host_no}_{no}.zip', f"osboxes@192.168.200.101:{send_path}"])
+            ["scp", f'results/{res}{host_no}_{no}.zip', f"osboxes@{result_server}:{send_path}"])
         send_email(f'results/{res}{host_no}_{no}.zip')
         time.sleep(r.uniform(1, 10))
 
@@ -424,7 +424,7 @@ class BrokerRequest:
 
 
 def initialization():
-    br = BrokerRequest(user='mec', pw='password', ip='192.168.200.101', sub_topic='control')
+    br = BrokerRequest(user='mec', pw='password', ip=broker_ip, sub_topic='control')
     br.broker_loop()
     del br
     print('starting ....')
@@ -472,9 +472,16 @@ def run(no_mec):
 
 
 def main():
+    global broker_ip
+    global result_server
+
     parser = argparse.ArgumentParser()   # --n=5
     parser.add_argument('--n', type=int, default=1, help='Number of MEC nodes')
+    parser.add_argument('--ip', type=str, default='localhost', help='broker ip address')
+    parser.add_argument('--result_server', type=str, default='localhost', help='result server ip address')
     args = parser.parse_args()
+    broker_ip = args.ip
+    result_server = args.result_server
 
     run(no_mec=args.n)
 
