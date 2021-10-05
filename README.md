@@ -76,6 +76,7 @@ Name server =>  `ugwuanyi/nameserver`
 # To Run the Demo
 GNS3 Architecture
 ![Results](simulation/gns3_architecture.PNG)
+[Follow Along Setup YouTube Video](https://www.youtube.com/watch?v=TwOJpM-YvOs&ab_channel=jamesking)
 1. start name server
 ```shell
 /etc/init.d/nginx start
