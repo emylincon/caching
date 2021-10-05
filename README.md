@@ -18,7 +18,7 @@ Full Implementation of A Novel Predictive-Collaborative-Replacement (PCR) Algori
 ### Emulation Experiment SETUP and Installation
 use the latest docker image `ugwuanyi/ubuntu_tf3` and run `git pull https://github.com/emylincon/caching`
 * To run setup on ubuntu run the `ubuntu_setup.sh`
-* To run setup on aline run `alpine_setup.sh`
+* To run setup on alpine run `alpine_setup.sh`
 
 #### Note for alpine use
 refere to [link](https://gist.github.com/orenitamar/f29fb15db3b0d13178c1c4dd611adce2) on how to install dependencies
