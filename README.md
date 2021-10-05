@@ -97,7 +97,7 @@ sudo sh LSTM_ubuntu.sh
 ````
   * install FTP server on result server
 ```shell
-sudo apt install vftpd
+sudo apt install vsftpd
 cp vsftpd.conf /etc/
 /etc/init.d/vsftpd restart
 ```
