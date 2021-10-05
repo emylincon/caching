@@ -1,3 +1,7 @@
+![status](https://github.com/emylincon/caching/workflows/AlgoTest/badge.svg)
+
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/emylincon/caching/AlgoTest?style=for-the-badge)
+
 # Predictive Caching using Association
 Full Implementation of A Novel Predictive-Collaborative-Replacement (PCR) Algorithm for MECs
 

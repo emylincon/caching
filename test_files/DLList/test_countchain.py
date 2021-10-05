@@ -1,5 +1,4 @@
 import unittest
-import math
 from count_chain import CountChain
 
 
