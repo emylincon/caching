@@ -73,7 +73,9 @@ Ubuntu Image => `ugwuanyi/ubuntu_tf3`
 
 Name server =>  `ugwuanyi/nameserver`
 
-### to Run the Demo
+# To Run the Demo
+GNS3 Architecture
+![Results](simulation/gns3_architecture.PNG)
 1. start name server
 ```shell
 /etc/init.d/nginx start
