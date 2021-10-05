@@ -114,7 +114,7 @@ ssh-keygen -t rsa ; ssh-copy-id osboxes@result_server_ip
 
 6: start application
 ```shell
-sh clean_up.sh ; cd python3 7demo.py --no=5 --ip=broker_ip --name_server=name_server_ip --result_server=result_server_ip
+sh clean_up.sh ; cd python3 7demo.py --n=5 --ip=broker_ip --name_server=name_server_ip --result_server=result_server_ip
 
 ```
 	
