@@ -9,7 +9,7 @@ pandas
 mlxtend
 requests
 wget
-tensorflow==2.2.0
+tensorflow==2.11.1
 scipy
 scikit-learn
 pillow
